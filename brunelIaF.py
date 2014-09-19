@@ -6,7 +6,7 @@ import nineml.abstraction_layer as al
 
 model = al.ComponentClass(
     name="BrunelIaF",
-    regimes=[
+    regimes=[foo
         al.Regime(
             name="subthresholdRegime",
             time_derivatives=["dV/dt = (-V + R*Isyn)/tau"],
@@ -20,7 +20,7 @@ model = al.ComponentClass(
             name="refractoryRegime",
             time_derivatives=["dV/dt = 0"],
             transitions=[al.On("t > t_rpend",
-                               do=[al.OutputEvent('refractoryEnd')],
+                               #do=[al.OutputEvent('refractoryEnd')],
                                to="subthresholdRegime")],
         )
     ],
@@ -33,7 +33,7 @@ model = al.ComponentClass(
         al.ReducePort("Isyn", reduce_op="+")],
     event_ports=[
         al.SendEventPort('spikeOutput'),
-        al.SendEventPort('refractoryEnd')],
+        #al.SendEventPort('refractoryEnd')],
     parameters=['tau', 'theta', 'tau_rp', 'Vreset', 'R']
 )
 

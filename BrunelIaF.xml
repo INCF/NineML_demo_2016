@@ -5,7 +5,6 @@
     <AnalogPort mode="send" name="t_rpend"/>
     <AnalogPort mode="reduce" reduce_op="+" name="Isyn"/>
     <EventPort mode="send" name="spikeOutput"/>
-    <EventPort mode="send" name="refractoryEnd"/>
     <Parameter dimension="" name="tau"/>
     <Parameter dimension="" name="theta"/>
     <Parameter dimension="" name="tau_rp"/>
@@ -34,7 +33,6 @@
           <MathInline>0</MathInline>
         </TimeDerivative>
         <OnCondition target_regime="subthresholdRegime">
-          <EventOut port="refractoryEnd"/>
           <Trigger>
             <MathInline>t &gt; t_rpend</MathInline>
           </Trigger>

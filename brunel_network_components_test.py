@@ -1,6 +1,10 @@
 # encoding: utf-8
 """
-Tests of the 9ML components for the Brunel (2000) network model
+Test of the 9ML components for the Brunel (2000) network model
+by creating a network of three neurons.
+
+This script defines the network and exports to XML, but does not run any simulation.
+It is used by "run_brunel_test.py"
 
 Author: Andrew P. Davison, UNIC, CNRS
 June 2014
@@ -10,7 +14,7 @@ from __future__ import division
 import nineml.user_layer as nineml
 
 delay = 1.5          # (ms) global delay for all neurons in the group
-J = 2.5              # (nA) synaptic weight
+J = 20.0              # (nA) synaptic weight
 g = 5.0              # relative strength of inhibitory synapses
 eta = 2.0            # nu_ext / nu_thresh
 Je = J               # excitatory weights
@@ -61,25 +65,24 @@ input_prj = nineml.Projection("External", external, all_cells,
                               synaptic_response_ports=[("Isyn", "Isyn")],
                               connection_type=static_ext,
                               connection_ports=[("weight", "q")])
-#exc_prj = nineml.Projection("Excitation", exc_cells, all_cells,
-#                            rule=all_to_all,
-#                            synaptic_response=psr,
-#                            synaptic_response_ports=[("Isyn", "Isyn")],
-#                            connection_type=static_exc,
-#                            connection_ports=[("weight", "q")])
-#inh_prj = nineml.Projection("Inhibition", inh_cells, all_cells,
-#                            rule=all_to_all,
-#                            synaptic_response=psr,
-#                            synaptic_response_ports=[("Isyn", "Isyn")],
-#                            connection_type=static_inh,
-#                            connection_ports=[("weight", "q")])
+exc_prj = nineml.Projection("Excitation", exc_cells, all_cells,
+                            rule=all_to_all,
+                            synaptic_response=psr,
+                            synaptic_response_ports=[("Isyn", "Isyn")],
+                            connection_type=static_exc,
+                            connection_ports=[("weight", "q")])
+inh_prj = nineml.Projection("Inhibition", inh_cells, all_cells,
+                            rule=all_to_all,
+                            synaptic_response=psr,
+                            synaptic_response_ports=[("Isyn", "Isyn")],
+                            connection_type=static_inh,
+                            connection_ports=[("weight", "q")])
 
 network = nineml.Group("BrunelCaseC")
 network.add(exc_cells, inh_cells, external, all_cells)
-network.add(input_prj)  #, exc_prj, inh_prj)
+network.add(input_prj, exc_prj, inh_prj)
 model = nineml.Model("Three-neuron network with alpha synapses")
 model.add_group(network)
-
 
 
 if __name__ == "__main__":
