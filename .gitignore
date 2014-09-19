@@ -1,0 +1,8 @@
+*.pyc
+*.pkl
+*.komodoproject
+nineml_mechanisms
+archive
+*.h5
+.smt
+tmp.out
