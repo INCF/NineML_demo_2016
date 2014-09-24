@@ -19,15 +19,14 @@ model.write(xml_file)
 
 sim.setup()
 net = Network(sim, xml_file)
-#all = net.assemblies["All neurons"]
-#all.record("spikes")
+
 stim = net.assemblies['BrunelCaseC'].get_population("Ext")
-stim.record('spikes')
+stim[:100].record('spikes')
 exc = net.assemblies['BrunelCaseC'].get_population("Exc")
-exc.record("spikes")
+exc[:100].record("spikes")
 exc.sample(3).record(["nrn_V", "syn_A"])
 inh = net.assemblies['BrunelCaseC'].get_population("Inh")
-inh.record("spikes")
+inh[:100].record("spikes")
 inh.sample(3).record(["nrn_V", "syn_A"])
 
 sim.run(100.0)
@@ -41,11 +40,11 @@ sim.end()
 
 
 Figure(
-    Panel(stim_data.spiketrains),
+    Panel(stim_data.spiketrains, markersize=0.2),
     Panel(exc_data.analogsignalarrays[0], yticks=True),
     Panel(exc_data.analogsignalarrays[1], yticks=True),
     Panel(exc_data.spiketrains),
     Panel(inh_data.analogsignalarrays[0], yticks=True),
     Panel(inh_data.analogsignalarrays[1], yticks=True),
-    Panel(inh_data.spiketrains),
+    Panel(inh_data.spiketrains, xticks=True, xlabel="Time (ms)"),
 ).save("brunel_network_alpha.png")

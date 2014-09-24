@@ -14,7 +14,7 @@ from __future__ import division
 from math import exp
 import nineml.user_layer as nineml
 
-order = 250        # scales the size of the network
+order = 2500        # scales the size of the network
 Ne = 4 * order     # number of excitatory neurons
 Ni = 1 * order     # number of inhibitory neurons
 epsilon = 0.1      # connectivity probability
@@ -33,7 +33,7 @@ tau = 20.0         # membrane time constant
 tau_syn = 0.5      # synapse time constant
 nu_thresh = theta / (Je * Ce * tau * exp(1.0) * tau_syn)  # threshold rate
 nu_ext = eta * nu_thresh      # external rate per synapse
-input_rate = 1000.0 * nu_ext  # mean input spiking rate
+input_rate = 1000.0 * nu_ext * Cext   # mean input spiking rate
 
 neuron_parameters = nineml.ParameterSet(tau=(tau, "ms"),
                                         theta=(theta, "ms"),
@@ -62,14 +62,14 @@ psr = nineml.SynapseType("syn", "AlphaPSR.xml", psr_parameters,
 
 exc_cells = nineml.Population("Exc", Ne, celltype, positions=None)
 inh_cells = nineml.Population("Inh", Ni, celltype, positions=None)
-external = nineml.Population("Ext", int(Cext), ext_stim, positions=None)
+external = nineml.Population("Ext", Ne + Ni, ext_stim, positions=None)
 
 all_cells = nineml.Selection("All neurons",
                              nineml.Any(
                                 nineml.Eq("population[@name]", exc_cells.name),
                                 nineml.Eq("population[@name]", inh_cells.name)))
 
-all_to_all = nineml.ConnectionRule("AllToAll", "AllToAllConnection.xml")
+one_to_one = nineml.ConnectionRule("OneToOne", "OneToOneConnection.xml")
 random_uniform = nineml.ConnectionRule("RandomUniform", "RandomUniformConnection.xml", {"epsilon": (epsilon, "dimensionless")})
 
 static_ext = nineml.ConnectionType("ExternalPlasticity", "StaticConnection.xml",
@@ -80,7 +80,7 @@ static_inh = nineml.ConnectionType("InhibitoryPlasticity", "StaticConnection.xml
                                    {"delay": (delay, "ms")}, initial_values={"weight": (Ji, "nA"), "t_next": (1e12, "ms")})
 
 input_prj = nineml.Projection("External", external, all_cells,
-                              rule=all_to_all,
+                              rule=one_to_one,
                               synaptic_response=psr,
                               synaptic_response_ports=[("Isyn", "Isyn")],
                               connection_type=static_ext,
