@@ -14,16 +14,17 @@ from __future__ import division
 import nineml.user_layer as nineml
 
 delay = 1.5          # (ms) global delay for all neurons in the group
-J = 20.0              # (nA) synaptic weight
+J = 0.1              # (mV) EPSP size
+Jeff = 24.0*J        # (nA) synaptic weight
 g = 5.0              # relative strength of inhibitory synapses
 eta = 2.0            # nu_ext / nu_thresh
-Je = J               # excitatory weights
+Je = Jeff            # excitatory weights
 Ji = -g * Je         # inhibitory weights
 Jext = Je            # external weights
 theta = 20.0         # firing thresholds
 tau = 20.0           # membrane time constant
 tau_syn = 0.5        # synapse time constant
-input_rate = 1000.0  # mean input spiking rate
+input_rate = 10.0  # mean input spiking rate
 
 neuron_parameters = nineml.ParameterSet(tau=(tau, "ms"),
                                         theta=(theta, "ms"),
