@@ -23,6 +23,7 @@ case = sys.argv[1]
 parameters = {
     "SR": {"g": 3, "eta": 2},
     "SR2": {"g": 2, "eta": 2},
+    "SR3": {"g": 0, "eta": 2},
     "SIfast": {"g": 6, "eta": 4},
     "AI": {"g": 5, "eta": 2},
     "SIslow": {"g": 4.5, "eta": 0.9}

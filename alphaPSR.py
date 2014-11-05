@@ -18,11 +18,11 @@ model = al.ComponentClass(
         al.StateVariable('A', dimension="current"),
         al.StateVariable('B', dimension="current"),
     ],
-    analog_ports=[al.SendPort("Isyn"),
-                  al.SendPort("A"),
-                  al.SendPort("B"),
-                  al.RecvPort("q")],
-    parameters=['tau_syn']
+    analog_ports=[al.SendPort("Isyn", dimension="current"),
+                  al.SendPort("A", dimension="current"),
+                  al.SendPort("B", dimension="current"),
+                  al.RecvPort("q", dimension="current")],
+    parameters=[al.Parameter('tau_syn', 'time')]
 )
 
 

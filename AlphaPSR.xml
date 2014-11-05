@@ -1,12 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <NineML xmlns="http://nineml.incf.org/9ML/0.3">
   <ComponentClass name="AlphaPSR">
-    <AnalogPort mode="send" name="Isyn"/>
-    <AnalogPort mode="send" name="A"/>
-    <AnalogPort mode="send" name="B"/>
-    <AnalogPort mode="recv" name="q"/>
+    <AnalogPort mode="send" dimension="current" name="Isyn"/>
+    <AnalogPort mode="send" dimension="current" name="A"/>
+    <AnalogPort mode="send" dimension="current" name="B"/>
+    <AnalogPort mode="recv" dimension="current" name="q"/>
     <EventPort mode="recv" name="spike"/>
-    <Parameter dimension="" name="tau_syn"/>
+    <Parameter dimension="time" name="tau_syn"/>
     <Dynamics>
       <Regime name="default">
         <TimeDerivative variable="A">
