@@ -1,7 +1,7 @@
 import nineml.abstraction_layer as al
+from nineml.abstraction_layer.units import current, time
 
-
-model = al.ComponentClass(
+model = al.DynamicsClass(
     name="AlphaPSR",
     aliases=["Isyn := A"],
     regimes=[
@@ -15,14 +15,14 @@ model = al.ComponentClass(
         )
     ],
     state_variables=[
-        al.StateVariable('A', dimension="current"),
-        al.StateVariable('B', dimension="current"),
+        al.StateVariable('A', dimension=current),
+        al.StateVariable('B', dimension=current),
     ],
-    analog_ports=[al.SendPort("Isyn", dimension="current"),
-                  al.SendPort("A", dimension="current"),
-                  al.SendPort("B", dimension="current"),
-                  al.RecvPort("q", dimension="current")],
-    parameters=[al.Parameter('tau_syn', 'time')]
+    analog_ports=[al.AnalogSendPort("Isyn", dimension=current),
+                  al.AnalogSendPort("A", dimension=current),
+                  al.AnalogSendPort("B", dimension=current),
+                  al.AnalogReceivePort("q", dimension=current)],
+    parameters=[al.Parameter('tau_syn', dimension=time)]
 )
 
 

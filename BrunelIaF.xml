@@ -1,10 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<NineML xmlns="http://nineml.incf.org/9ML/0.3">
+<NineML xmlns="http://nineml.net/9ML/1.0">
   <ComponentClass name="BrunelIaF">
-    <AnalogPort mode="send" dimension="voltage" name="V"/>
-    <AnalogPort mode="send" dimension="time" name="t_rpend"/>
-    <AnalogPort dimension="current" mode="reduce" name="Isyn" reduce_op="+"/>
-    <EventPort mode="send" name="spikeOutput"/>
+    <AnalogSendPort dimension="voltage" name="V"/>
+    <AnalogSendPort dimension="time" name="t_rpend"/>
+    <AnalogReducePort operator="+" dimension="current" name="Isyn"/>
+    <EventSendPort name="spikeOutput"/>
     <Parameter dimension="time" name="tau"/>
     <Parameter dimension="voltage" name="theta"/>
     <Parameter dimension="time" name="tau_rp"/>
@@ -42,4 +42,8 @@
       <StateVariable dimension="time" name="t_rpend"/>
     </Dynamics>
   </ComponentClass>
+  <nineml:Dimension xmlns:nineml="http://nineml.net/9ML/1.0" i="1" name="current"/>
+  <nineml:Dimension xmlns:nineml="http://nineml.net/9ML/1.0" i="-1" t="-3" m="1" l="2" name="voltage"/>
+  <nineml:Dimension xmlns:nineml="http://nineml.net/9ML/1.0" i="-2" t="-3" m="1" l="2" name="resistance"/>
+  <nineml:Dimension xmlns:nineml="http://nineml.net/9ML/1.0" name="time" t="1"/>
 </NineML>

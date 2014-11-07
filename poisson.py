@@ -3,8 +3,9 @@
 """
 
 import nineml.abstraction_layer as al
+from nineml.abstraction_layer.units import time
 
-model = al.ComponentClass(
+model = al.DynamicsClass(
     name="Poisson",
     regimes=[
         al.Regime(
@@ -13,8 +14,8 @@ model = al.ComponentClass(
                               do=["t_next = t + random.exponential(1000/rate)",
                                   al.OutputEvent('spikeOutput')]))
     ],
-    event_ports=[al.SendEventPort('spikeOutput')],
-    state_variables=[al.StateVariable('t_next', dimension="time")],
+    event_ports=[al.EventSendPort('spikeOutput')],
+    state_variables=[al.StateVariable('t_next', dimension=time)],
     parameters=["rate"]
 )
 
