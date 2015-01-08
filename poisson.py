@@ -3,7 +3,7 @@
 """
 
 import nineml.abstraction_layer as al
-from nineml.abstraction_layer.units import time
+from nineml.abstraction_layer.units import time, per_time
 
 model = al.DynamicsClass(
     name="Poisson",
@@ -16,7 +16,7 @@ model = al.DynamicsClass(
     ],
     event_ports=[al.EventSendPort('spikeOutput')],
     state_variables=[al.StateVariable('t_next', dimension=time)],
-    parameters=["rate"]
+    parameters=[al.Parameter('rate', dimension=per_time),]
 )
 
 

@@ -40,12 +40,12 @@ model.write(xml_file)
 sim.setup()
 net = Network(sim, xml_file)
 
-stim = net.assemblies['BrunelCaseC'].get_population("Ext")
+stim = net.populations["Ext"]
 stim[:100].record('spikes')
-exc = net.assemblies['BrunelCaseC'].get_population("Exc")
+exc = net.populations["Exc"]
 exc.record("spikes")
 exc.sample(3).record(["nrn_V", "syn_A"])
-inh = net.assemblies['BrunelCaseC'].get_population("Inh")
+inh = net.populations["Inh"]
 inh.record("spikes")
 inh.sample(3).record(["nrn_V", "syn_A"])
 

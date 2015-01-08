@@ -1,7 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <NineML xmlns="http://nineml.net/9ML/1.0">
-  <ComponentClass name="SynapticConnectionWithFixedWeight">
-    <AnalogSendPort dimension="dimensionless" name="weight"/>
+  <Dimension i="1" name="current"/>
+  <ComponentClass name="StaticConnection">
+    <AnalogSendPort dimension="current" name="weight"/>
     <Dynamics>
       <Regime name="default">
         <TimeDerivative variable="weight">
@@ -11,5 +12,4 @@
       <StateVariable dimension="current" name="weight"/>
     </Dynamics>
   </ComponentClass>
-  <nineml:Dimension xmlns:nineml="http://nineml.net/9ML/1.0" i="1" name="current"/>
 </NineML>

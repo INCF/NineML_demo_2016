@@ -2,7 +2,7 @@ import nineml.abstraction_layer as al
 from nineml.abstraction_layer.units import current
 
 model = al.DynamicsClass(
-    name="SynapticConnectionWithFixedWeight",
+    name="StaticConnection",
     regimes=[
         al.Regime(
             name="default",
@@ -13,7 +13,7 @@ model = al.DynamicsClass(
     state_variables=[
         al.StateVariable('weight', dimension=current),  # would be nice to make this dimensionless
     ],
-    analog_ports=[al.AnalogSendPort("weight")],
+    analog_ports=[al.AnalogSendPort("weight", dimension=current)],
 )
 
 

@@ -13,7 +13,8 @@ June 2014
 from __future__ import division
 from math import exp
 import nineml.user_layer as nineml
-from nineml.abstraction_layer.units import ms, mV, nA, dimensionless, Hz
+from nineml.context import Context
+from nineml.abstraction_layer.units import ms, mV, nA, dimensionless, Hz, Mohm
 
 
 def build_model(g, eta):
@@ -49,10 +50,10 @@ def build_model(g, eta):
     input_rate = 1000.0 * nu_ext * Cext   # mean input spiking rate
 
     neuron_parameters = nineml.PropertySet(tau=(tau, ms),
-                                            theta=(theta, ms),
-                                            tau_rp=(2.0, ms),
-                                            Vreset=(10.0, mV),
-                                            R=(1.5, dimensionless))  # units??
+                                           theta=(theta, mV),
+                                           tau_rp=(2.0, ms),
+                                           Vreset=(10.0, mV),
+                                           R=(1.5, Mohm))  # units??
     psr_parameters = nineml.PropertySet(tau_syn=(tau_syn, ms))
     #v_init = nineml.RandomDistribution("uniform(rest,threshold)",
     #                                   "catalog/randomdistributions/uniform_distribution.xml",  # hack - this file doesn't exist
@@ -63,7 +64,7 @@ def build_model(g, eta):
                              "t_rpend": (0.0, ms)}
     synapse_initial_values = {"A": (0.0, nA), "B": (0.0, nA)}
 
-    celltype = nineml.SpikingNodeType("nrn", "BrunelIAF.xml", neuron_parameters, initial_values=neuron_initial_values)
+    celltype = nineml.SpikingNodeType("nrn", "BrunelIaF.xml", neuron_parameters, initial_values=neuron_initial_values)
 
     #tpoisson_init = nineml.RandomDistribution("exponential(beta)",
     #                                          "catalog/randomdistributions/exponential_distribution.xml",
@@ -79,12 +80,12 @@ def build_model(g, eta):
     inh_cells = nineml.Population("Inh", Ni, celltype, positions=None)
     external = nineml.Population("Ext", Ne + Ni, ext_stim, positions=None)
 
-    all_cells = nineml.PopulationSelection("All neurons",
-                                           nineml.Concatenate(exc_cells.name, inh_cells.name))
+    all_cells = nineml.Selection("All neurons",
+                                 nineml.Concatenate(exc_cells, inh_cells))
 
-    one_to_one = nineml.ConnectionRule("OneToOne", "OneToOneConnectionStd.xml")
-    random_exc = nineml.ConnectionRule("RandomExc", "RandomFanInConnectionStd.xml", {"number": (Ce, dimensionless)})
-    random_inh = nineml.ConnectionRule("RandomInh", "RandomFanInConnectionStd.xml", {"number": (Ci, dimensionless)})
+    one_to_one = nineml.ConnectionRule("OneToOne", "OneToOne.xml")
+    random_exc = nineml.ConnectionRule("RandomExc", "RandomFanIn.xml", {"number": (Ce, dimensionless)})
+    random_inh = nineml.ConnectionRule("RandomInh", "RandomFanIn.xml", {"number": (Ci, dimensionless)})
 
     static_ext = nineml.ConnectionType("ExternalPlasticity", "StaticConnection.xml",
                                        initial_values={"weight": (Jext, nA)})
@@ -94,27 +95,31 @@ def build_model(g, eta):
                                        initial_values={"weight": (Ji, nA)})
 
     input_prj = nineml.Projection("External", external, all_cells,
-                                  rule=one_to_one,
-                                  synaptic_response=psr,
-                                  synaptic_response_ports=[("Isyn", "Isyn")],
-                                  connection_type=static_ext,
-                                  connection_ports=[("weight", "q")])
+                                  connectivity=one_to_one,
+                                  response=psr,
+                                  plasticity=static_ext,
+                                  port_connections=[nineml.PortConnection("plasticity", "response", "weight", "q"),
+                                                    nineml.PortConnection("response", "destination", "Isyn", "Isyn")],
+                                  delay=(delay, ms))
     exc_prj = nineml.Projection("Excitation", exc_cells, all_cells,
-                                rule=random_exc,
-                                synaptic_response=psr,
-                                synaptic_response_ports=[("Isyn", "Isyn")],
-                                connection_type=static_exc,
-                                connection_ports=[("weight", "q")])
+                                connectivity=random_exc,
+                                response=psr,
+                                plasticity=static_exc,
+                                port_connections=[nineml.PortConnection("plasticity", "response", "weight", "q"),
+                                                  nineml.PortConnection("response", "destination", "Isyn", "Isyn")],
+                                delay=(delay, ms))
     inh_prj = nineml.Projection("Inhibition", inh_cells, all_cells,
-                                rule=random_inh,
-                                synaptic_response=psr,
-                                synaptic_response_ports=[("Isyn", "Isyn")],
-                                connection_type=static_inh,
-                                connection_ports=[("weight", "q")])
+                                connectivity=random_inh,
+                                response=psr,
+                                plasticity=static_inh,
+                                port_connections=[nineml.PortConnection("plasticity", "response", "weight", "q"),
+                                                  nineml.PortConnection("response", "destination", "Isyn", "Isyn")],
+                                delay=(delay, ms))
 
     network = nineml.Network("BrunelCaseC")
     network.add(exc_cells, inh_cells, external, all_cells)
     network.add(input_prj, exc_prj, inh_prj)
+
     #model = nineml.Model("Brunel (2000) network with alpha synapses")
     #model.add_group(network)
 

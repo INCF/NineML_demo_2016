@@ -1,8 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <NineML xmlns="http://nineml.net/9ML/1.0">
+  <Dimension name="time" t="1"/>
+  <Dimension i="1" name="current"/>
   <ComponentClass name="AlphaPSR">
-    <AnalogSendPort dimension="current" name="Isyn"/>
     <AnalogSendPort dimension="current" name="A"/>
+    <AnalogSendPort dimension="current" name="Isyn"/>
     <AnalogSendPort dimension="current" name="B"/>
     <AnalogReceivePort dimension="current" name="q"/>
     <EventReceivePort name="spike"/>
@@ -28,6 +30,4 @@
       <StateVariable dimension="current" name="B"/>
     </Dynamics>
   </ComponentClass>
-  <nineml:Dimension xmlns:nineml="http://nineml.net/9ML/1.0" i="1" name="current"/>
-  <nineml:Dimension xmlns:nineml="http://nineml.net/9ML/1.0" name="time" t="1"/>
 </NineML>

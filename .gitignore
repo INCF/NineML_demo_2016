@@ -6,3 +6,4 @@ archive
 *.h5
 .smt
 tmp.out
+.idea
