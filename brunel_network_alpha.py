@@ -28,7 +28,7 @@ def build_model(g, eta):
     Returns:
         a nineml user layer Model object
     """
-    order = 250        # scales the size of the network
+    order = 1000       # scales the size of the network
     Ne = 4 * order     # number of excitatory neurons
     Ni = 1 * order     # number of inhibitory neurons
     epsilon = 0.1      # connection probability
@@ -43,7 +43,7 @@ def build_model(g, eta):
     Jext = Je          # external weights
     theta = 20.0       # firing thresholds
     tau = 20.0         # membrane time constant
-    tau_syn = 0.5      # synapse time constant
+    tau_syn = 0.1      # synapse time constant
     #nu_thresh = theta / (Je * Ce * tau * exp(1.0) * tau_syn)  # threshold rate
     nu_thresh = theta / (J * Ce * tau)
     nu_ext = eta * nu_thresh      # external rate per synapse

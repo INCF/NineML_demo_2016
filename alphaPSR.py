@@ -8,7 +8,7 @@ model = al.DynamicsClass(
         al.Regime(
             name="default",
             time_derivatives=[
-                "dA/dt = (B - A)/tau_syn",
+                "dA/dt = B - A/tau_syn",
                 "dB/dt = (-B)/tau_syn"],
             transitions=al.On('spike',
                               do=["B = B + q"]),  # would be nice to allow constant quantities, so we could make q dimensionless

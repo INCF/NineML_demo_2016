@@ -21,17 +21,17 @@ model.write(xml_file)
 
 sim.setup(timestep=0.01)
 net = Network(sim, xml_file)
-#all = net.assemblies["All neurons"]
-stim = net.assemblies['BrunelCaseC'].get_population("Ext")
-stim.record('spikes')
-exc = net.assemblies['BrunelCaseC'].get_population("Exc")
-exc.record(["spikes", "nrn_V", "syn_A"])
-inh = net.assemblies['BrunelCaseC'].get_population("Inh")
+
+input = net.populations["Ext"]
+input.record('spikes')
+exc = net.populations["Exc"]
+exc.record(["spikes", "nrn_V", "syn_A", "syn_B"])
+inh = net.populations["Inh"]
 inh.record(["spikes", "nrn_V", "syn_A"])
 
-sim.run(100.0)
+sim.run(10.0)
 
-stim_data = stim.get_data().segments[0]
+input_data = input.get_data().segments[0]
 exc_data = exc.get_data().segments[0]
 inh_data = inh.get_data().segments[0]
 #import pdb; pdb.set_trace()
@@ -41,11 +41,13 @@ sim.end()
 
 
 Figure(
-    Panel(stim_data.spiketrains),
+    Panel(input_data.spiketrains),
     Panel(exc_data.analogsignalarrays[0], yticks=True),
     Panel(exc_data.analogsignalarrays[1], yticks=True),
-    Panel(exc_data.spiketrains),
+    Panel(exc_data.analogsignalarrays[2], yticks=True),
+    #Panel(exc_data.spiketrains),
     Panel(inh_data.analogsignalarrays[0], yticks=True),
-    Panel(inh_data.analogsignalarrays[1], yticks=True),
-    Panel(inh_data.spiketrains, xticks=True, xlabel="Time (ms)"),
+    Panel(inh_data.analogsignalarrays[1], yticks=True,
+          xticks=True, xlabel="Time (ms)"),
+    #Panel(inh_data.spiketrains, xticks=True, xlabel="Time (ms)"),
 ).save("brunel_network_components_test.png")
