@@ -63,6 +63,7 @@ else:
 print("Running simulation")
 t_stop = plot_limits[1]
 pb = SimulationProgressBar(t_stop/80, t_stop)
+
 sim.run(t_stop, callbacks=[pb])
 
 print("Handling data")
