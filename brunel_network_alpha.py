@@ -83,9 +83,9 @@ def build_model(g, eta):
     all_cells = nineml.Selection("All neurons",
                                  nineml.Concatenate(exc_cells, inh_cells))
 
-    one_to_one = nineml.ConnectionRuleComponent("OneToOne", "OneToOne.xml")
-    random_exc = nineml.ConnectionRuleComponent("RandomExc", "RandomFanIn.xml", {"number": (Ce, unitless)})
-    random_inh = nineml.ConnectionRuleComponent("RandomInh", "RandomFanIn.xml", {"number": (Ci, unitless)})
+    one_to_one = nineml.ConnectionRule("OneToOne", "OneToOne.xml")
+    random_exc = nineml.ConnectionRule("RandomExc", "RandomFanIn.xml", {"number": (Ce, unitless)})
+    random_inh = nineml.ConnectionRule("RandomInh", "RandomFanIn.xml", {"number": (Ci, unitless)})
 
     static_ext = nineml.ConnectionType("ExternalPlasticity", "StaticConnection.xml",
                                        initial_values={"weight": (Jext, nA)})
