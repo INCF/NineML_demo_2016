@@ -7,3 +7,8 @@ archive
 .smt
 tmp.out
 .idea
+*.xml
+*.png
+*.project
+*.pydevproject
+/.settings
