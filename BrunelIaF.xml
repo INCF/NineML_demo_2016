@@ -1,9 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <NineML xmlns="http://nineml.net/9ML/1.0">
-  <Dimension name="time" t="1"/>
-  <Dimension i="-2" t="-3" m="1" l="2" name="resistance"/>
-  <Dimension i="1" name="current"/>
-  <Dimension i="-1" t="-3" m="1" l="2" name="voltage"/>
+  <Dimension name="current" i="1" k="0" j="0" m="0" l="0" n="0" t="0"/>
   <ComponentClass name="BrunelIaF">
     <AnalogSendPort dimension="time" name="t_rpend"/>
     <AnalogSendPort dimension="voltage" name="V"/>
@@ -16,9 +13,6 @@
     <Parameter dimension="voltage" name="theta"/>
     <Dynamics>
       <Regime name="refractoryRegime">
-        <TimeDerivative variable="V">
-          <MathInline>0</MathInline>
-        </TimeDerivative>
         <OnCondition target_regime="subthresholdRegime">
           <Trigger>
             <MathInline>t &gt; t_rpend</MathInline>
@@ -26,24 +20,27 @@
         </OnCondition>
       </Regime>
       <Regime name="subthresholdRegime">
-        <TimeDerivative variable="V">
-          <MathInline>(-V + R*Isyn)/tau</MathInline>
-        </TimeDerivative>
         <OnCondition target_regime="refractoryRegime">
-          <StateAssignment variable="t_rpend">
-            <MathInline>t + tau_rp</MathInline>
-          </StateAssignment>
-          <StateAssignment variable="V">
-            <MathInline>Vreset</MathInline>
-          </StateAssignment>
-          <OutputEvent port="spikeOutput"/>
           <Trigger>
             <MathInline>V &gt; theta</MathInline>
           </Trigger>
+          <StateAssignment variable="V">
+            <MathInline>Vreset</MathInline>
+          </StateAssignment>
+          <StateAssignment variable="t_rpend">
+            <MathInline>t + tau_rp</MathInline>
+          </StateAssignment>
+          <OutputEvent port="spikeOutput"/>
         </OnCondition>
+        <TimeDerivative variable="V">
+          <MathInline>(Isyn*R - V)/tau</MathInline>
+        </TimeDerivative>
       </Regime>
       <StateVariable dimension="time" name="t_rpend"/>
       <StateVariable dimension="voltage" name="V"/>
     </Dynamics>
   </ComponentClass>
+  <Dimension name="voltage" i="-1" k="0" j="0" m="1" l="2" n="0" t="-3"/>
+  <Dimension name="resistance" i="-2" k="0" j="0" m="1" l="2" n="0" t="-3"/>
+  <Dimension name="time" i="0" k="0" j="0" m="0" l="0" n="0" t="1"/>
 </NineML>

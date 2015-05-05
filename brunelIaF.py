@@ -3,7 +3,7 @@
 """
 
 import nineml.abstraction_layer as al
-from nineml.abstraction_layer.units import voltage, time, resistance, current
+from nineml.units import voltage, time, resistance, current
 
 model = al.DynamicsClass(
     name="BrunelIaF",
@@ -19,7 +19,6 @@ model = al.DynamicsClass(
         ),
         al.Regime(
             name="refractoryRegime",
-            time_derivatives=["dV/dt = 0"],
             transitions=[al.On("t > t_rpend",
                                #do=[al.OutputEvent('refractoryEnd')],
                                to="subthresholdRegime")],
@@ -31,7 +30,7 @@ model = al.DynamicsClass(
     analog_ports=[
         al.AnalogSendPort("V", dimension=voltage),
         al.AnalogSendPort("t_rpend", dimension=time),
-        al.AnalogReducePort("Isyn", reduce_op="+", dimension=current)],
+        al.AnalogReducePort("Isyn", operator="+", dimension=current)],
     event_ports=[
         al.EventSendPort('spikeOutput'),
         ],
@@ -45,6 +44,6 @@ model = al.DynamicsClass(
 
 
 if __name__ == "__main__":
-    from nineml.abstraction_layer.dynamics.writers import XMLWriter
+    import nineml
     filename = __file__[0].upper() + __file__[1:].replace(".py", ".xml")
-    XMLWriter.write(model, filename)
+    nineml.write(model, filename)
