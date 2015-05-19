@@ -1,0 +1,20 @@
+# Default parameters for the Brunel (2000) network model
+
+network:
+  order: 1000      # scales the size of the network
+  epsilon: 0.1     # connection probability
+  delay: 1.5       # (ms) global delay for all neurons in the group
+  J: 0.1           # (mV) EPSP size
+  g: 3             # relative strength of inhibitory synapses
+  eta: 2           # ratio of external to threshold firing rates
+  theta: 20.0      # (mV) firing threshold
+  tau: 20.0        # (ms) membrane time constant
+  tau_syn: 0.1     # (ms) synapse time constant
+  tau_refrac: 2.0  # (ms) refractory period
+  v_reset: 10.0    # (mV) reset potential
+  R: 1.5           # (MΩ) membrane resistance
+experiment:
+  duration: 1200   # (ms) simulation duration
+  base_filename: 'results/brunel_network_alpha_SR'
+  n_record: 500    # number of neurons to record
+  plot_limits: [900, 1200]
