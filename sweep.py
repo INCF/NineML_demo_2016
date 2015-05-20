@@ -21,6 +21,8 @@ from sarge import run
 parser = argparse.ArgumentParser()
 parser.add_argument("implementation",
                     help="the implementation to use ('nineml', 'nest', 'pyNN.nest' or 'pyNN.neuron'")
+parser.add_argument("parameter_file",
+                    help="baseline parameter file for this experiment")
 config = parser.parse_args()
 
 implementation = config.implementation
@@ -29,7 +31,7 @@ timestamp = datetime.now()
 results_dir = "results/{:%Y%m%d-%H%M%S}".format(timestamp)
 os.mkdir(results_dir)
 
-with open("parameters/AI.yml") as fp:
+with open(config.parameter_file) as fp:
     parameters = yaml.load(fp)
 parameters["experiment"].pop("base_filename")
 

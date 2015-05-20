@@ -12,3 +12,4 @@ tmp.out
 *.project
 *.pydevproject
 /.settings
+results

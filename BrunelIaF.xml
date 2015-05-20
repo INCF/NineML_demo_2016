@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <NineML xmlns="http://nineml.net/9ML/1.0">
-  <Dimension name="current" i="1" k="0" j="0" m="0" l="0" n="0" t="0"/>
+  <Dimension i="1" name="current"/>
   <ComponentClass name="BrunelIaF">
     <AnalogSendPort dimension="time" name="t_rpend"/>
     <AnalogSendPort dimension="voltage" name="V"/>
@@ -12,6 +12,8 @@
     <Parameter dimension="time" name="tau_rp"/>
     <Parameter dimension="voltage" name="theta"/>
     <Dynamics>
+      <StateVariable dimension="time" name="t_rpend"/>
+      <StateVariable dimension="voltage" name="V"/>
       <Regime name="refractoryRegime">
         <OnCondition target_regime="subthresholdRegime">
           <Trigger>
@@ -20,27 +22,25 @@
         </OnCondition>
       </Regime>
       <Regime name="subthresholdRegime">
+        <TimeDerivative variable="V">
+          <MathInline>(Isyn*R - V)/tau</MathInline>
+        </TimeDerivative>
         <OnCondition target_regime="refractoryRegime">
           <Trigger>
             <MathInline>V &gt; theta</MathInline>
           </Trigger>
+          <OutputEvent port="spikeOutput"/>
           <StateAssignment variable="V">
             <MathInline>Vreset</MathInline>
           </StateAssignment>
           <StateAssignment variable="t_rpend">
             <MathInline>t + tau_rp</MathInline>
           </StateAssignment>
-          <OutputEvent port="spikeOutput"/>
         </OnCondition>
-        <TimeDerivative variable="V">
-          <MathInline>(Isyn*R - V)/tau</MathInline>
-        </TimeDerivative>
       </Regime>
-      <StateVariable dimension="time" name="t_rpend"/>
-      <StateVariable dimension="voltage" name="V"/>
     </Dynamics>
   </ComponentClass>
-  <Dimension name="voltage" i="-1" k="0" j="0" m="1" l="2" n="0" t="-3"/>
-  <Dimension name="resistance" i="-2" k="0" j="0" m="1" l="2" n="0" t="-3"/>
-  <Dimension name="time" i="0" k="0" j="0" m="0" l="0" n="0" t="1"/>
+  <Dimension i="-1" l="2" m="1" t="-3" name="voltage"/>
+  <Dimension i="-2" l="2" m="1" t="-3" name="resistance"/>
+  <Dimension name="time" t="1"/>
 </NineML>

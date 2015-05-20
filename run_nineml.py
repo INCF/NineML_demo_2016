@@ -8,20 +8,23 @@ backend.
 
 """
 
-
+from datetime import datetime
+from brunel_network_alpha import build_model
 import pyNN.neuron as sim
 from pyNN.nineml.read import Network
 from pyNN.utility import SimulationProgressBar
-from brunel_network_alpha import build_model
 
 
 def run_simulation(parameters, plot_figure=False):
     """
 
     """
+    timestamp = datetime.now()
     model = build_model(**parameters["network"])
-    #xml_file = "brunel_network_alpha_%s.xml" % case
-    xml_file = "{}.xml".format(parameters["experiment"]["base_filename"])
+    if "full_filename" in parameters["experiment"]:
+        xml_file = parameters["experiment"]["full_filename"].replace(".h5", ".xml")
+    else:
+        xml_file = "{}.xml".format(parameters["experiment"]["base_filename"])
     model.write(xml_file)
 
     sim.setup()
@@ -40,7 +43,7 @@ def run_simulation(parameters, plot_figure=False):
         inh.sample(3).record(["nrn_V", "syn_A"])
     else:
         all = net.assemblies["All neurons"]
-        #all.sample(50).record("spikes")
+        all.sample(parameters["experiment"]["n_record"]).record("spikes")
         all.record("spikes")
 
     print("Running simulation")
@@ -55,7 +58,12 @@ def run_simulation(parameters, plot_figure=False):
         data["exc"] = exc.get_data().segments[0]
         data["inh"] = inh.get_data().segments[0]
     else:
-        all.write_data("{}_nineml.h5".format(parameters["experiment"]["base_filename"]))
+        if "full_filename" in parameters["experiment"]:
+            filename = parameters["experiment"]["full_filename"]
+        else:
+            filename = "{}_nineml_{:%Y%m%d%H%M%S}.h5".format(parameters["experiment"]["base_filename"],
+                                                             timestamp)
+        all.write_data(filename)
 
     sim.end()
     return data
