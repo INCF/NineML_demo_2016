@@ -5,6 +5,7 @@
 
 from __future__ import division
 import sys
+import argparse
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
@@ -81,6 +82,16 @@ def plot_case(gs, data, t_start=900.0, t_stop=1200.0, title=""):
     j += 1
 
 
+parser = argparse.ArgumentParser()
+parser.add_argument("datafiles", nargs=4,
+                    help="Input data files")
+parser.add_argument("-o", "--output",
+                    help="filename for the figure",
+                    default="brunel_network_alpha_combined.png"
+                    )
+config = parser.parse_args()
+
+
 plt.rcParams.update({
     'lines.linewidth': 0.5,
     'legend.fontsize': 'small',
@@ -112,16 +123,19 @@ time_range = {
     "SIslow": (900, 1200)
 }
 
-basename = sys.argv[1]
+def get_case(filename):
+    for case in ("SR", "SIfast", "AI", "SIslow"):
+        if filename.find(case) > 0:
+            return case
+    raise Exception("Couldn't determine case")
 
-for case in ("SR", "SIfast", "AI", "SIslow"):
-    #io = neo.io.get_io("brunel_network_alpha_%s.h5" % case)
-    io = neo.io.get_io("%s%s.h5" % (basename, case))
+
+for data_file in config.datafiles:
+    io = neo.io.get_io(data_file)
     data = io.read()[0].segments[0]
+    case = get_case(data_file)
     t_start, t_stop = time_range[case]
     plot_case(gs, data, t_start, t_stop, titles[case])
 
 
-#fig.savefig("brunel_network_alpha_combined.png")
-fig.savefig("%scombined.png" % basename)
-
+fig.savefig(config.output)
