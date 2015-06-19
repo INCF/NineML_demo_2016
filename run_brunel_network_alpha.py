@@ -50,6 +50,9 @@ if config.implementation == "nineml":
     from run_nineml import run_simulation
 elif config.implementation == "nest":
     from run_nest import run_simulation
+elif "pyNN" in config.implementation:
+    from run_PyNN import run_simulation
+    parameters["simulator"] = config.implementation
 else:
     raise NotImplementedError()
 
