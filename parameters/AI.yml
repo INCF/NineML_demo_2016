@@ -18,3 +18,4 @@ experiment:
   base_filename: 'results/brunel_network_alpha_AI'
   n_record: 500    # number of neurons to record
   plot_limits: [900, 1200]
+  seed: 4569435692

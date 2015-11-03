@@ -16,6 +16,7 @@ from datetime import datetime
 from uuid import uuid1
 import argparse
 import yaml
+import numpy as np
 from sarge import run
 
 parser = argparse.ArgumentParser()
@@ -35,12 +36,16 @@ with open(config.parameter_file) as fp:
     parameters = yaml.load(fp)
 parameters["experiment"].pop("base_filename")
 
+#n_jobs = 1
+#jobs = []
+
 with open(os.path.join(results_dir, "sweeps.csv"), "w") as sweep_fp:
-    for g in range(0, 9, 2):
-        for eta in range(0, 5):
+    #for g in np.arange(0, 9, 0.5):
+    for g in np.arange(1.5, 9, 0.5):
+        for eta in np.arange(0, 5, 0.25):
             id = str(uuid1())[:8]
-            parameters["network"]["g"] = g
-            parameters["network"]["eta"] = eta
+            parameters["network"]["g"] = float(g)   # yaml treats numpy floats differently
+            parameters["network"]["eta"] = float(eta)
             output_file = os.path.join(results_dir,
                                        "brunel_network_alpha_{}_{}.h5".format(implementation, id))
             parameters["experiment"]["full_filename"] = output_file
@@ -48,9 +53,17 @@ with open(os.path.join(results_dir, "sweeps.csv"), "w") as sweep_fp:
             with open(parameter_file, "w") as fp:
                 yaml.dump(parameters, fp)
 
-            command = "python run_brunel_network_alpha.py {} {}".format(implementation, parameter_file)
-            print(command)
-            run(command)
-
             sweep_fp.write("{} {} {}\n".format(g, eta, output_file))
             sweep_fp.flush()  # flush file buffers in case a later iteration crashes
+
+            command = "python run_brunel_network_alpha.py {} {}".format(implementation, parameter_file)
+            #command = "echo '{} {}'".format(g, eta)
+
+            print(command)
+            run(command)
+            #jobs.append(
+            #    run(command, async=True))
+            #if len(jobs) == n_jobs:
+            #    for job in jobs:
+            #        job.close()
+            #    jobs = []

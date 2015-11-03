@@ -32,7 +32,6 @@ def run_simulation(parameters, plot_figure=False):
     else:
         all = exc + inh
         all.sample(parameters["experiment"]["n_record"]).record("spikes")
-        all.record("spikes")
 
     print("Running simulation")
     t_stop = parameters["experiment"]["duration"]
@@ -77,8 +76,6 @@ def build_network(sim, order=1000, epsilon=0.1, delay=1.5, J=0.1, theta=20.0,
     #nu_th  = (theta * CMem) / (J_ex*CE*exp(1)*tauMem*tauSyn)
     nu_ex = eta * nu_th
     p_rate = 1000.0 * nu_ex * CE
-
-    print("Building network")
 
     neuron_params = {"cm":        CMem,
                      "tau_m":      tau,
