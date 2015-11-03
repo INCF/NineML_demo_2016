@@ -21,6 +21,8 @@ from __future__ import division, print_function
 from datetime import datetime
 import argparse
 import yaml
+import matplotlib
+matplotlib.use("Agg")
 from pyNN.utility.plotting import Figure, Panel
 from analysis import instantaneous_firing_rate
 
@@ -46,6 +48,7 @@ config = parser.parse_args()
 with open(config.parameter_file) as fp:
     parameters = yaml.load(fp)
 
+
 if config.implementation == "nineml":
     from run_nineml import run_simulation
 elif config.implementation == "nest":
@@ -55,6 +58,7 @@ elif "pyNN" in config.implementation:
     parameters["simulator"] = config.implementation
 else:
     raise NotImplementedError()
+
 
 data = run_simulation(parameters, config.plot_figure)
 
