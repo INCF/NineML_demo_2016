@@ -13,3 +13,4 @@ tmp.out
 *.pydevproject
 /.settings
 results
+x86_64
