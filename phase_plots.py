@@ -12,13 +12,9 @@ import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-from quantities import Quantity, ms
-from neo import get_io
-from elephant.statistics import mean_firing_rate, cv, isi
-from elephant.conversion import BinnedSpikeTrain
-from elephant.spike_train_correlation import corrcoef
 import pandas
 from joblib import Parallel, delayed
+from analysis import spike_statistics
 
 
 parser = argparse.ArgumentParser()
@@ -29,38 +25,6 @@ config = parser.parse_args()
 results_dir = config.directory
 
 statistics_file = os.path.join(results_dir, "statistics.csv")
-
-
-def spike_statistics(idx, row):
-    print(idx)
-    results = {}
-
-    # read spike trains from file
-    io = get_io(row["output_file"])
-    data_block = io.read()[0]
-    spiketrains = data_block.segments[0].spiketrains
-
-    # calculate mean firing rate
-    results["spike_counts"] = sum(st.size for st in spiketrains)
-    rates = [mean_firing_rate(st) for st in spiketrains]
-    results["firing_rate"] = Quantity(rates, units=rates[0].units).rescale("1/s").mean()
-
-    # calculate coefficient of variation of the inter-spike interval
-    cvs = [cv(isi(st)) for st in spiketrains if st.size > 1]
-    if len(cvs) > 0:
-        results["cv_isi"] = sum(cvs)/len(cvs)
-    else:
-        results["cv_isi"] = 0
-
-    # calculate global cross-correlation
-    #cc_matrix = corrcoef(BinnedSpikeTrain(spiketrains, binsize=5*ms))
-    #results["cc_min"] = cc_matrix.min()
-    #results["cc_max"] = cc_matrix.max()
-    #results["cc_mean"] = cc_matrix.mean()
-
-    io.close()
-    return results
-
 
 if os.path.exists(statistics_file):
     # read the previously calculated spike train statistics from file
