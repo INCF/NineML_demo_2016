@@ -29,12 +29,20 @@ RUN $VENV2/bin/pip install elephant
 # Install NineML libraries
 
 WORKDIR $HOME/packages
-RUN git clone https://github.com/INCF/lib9ML.git
-RUN echo "ensure we skip the cache"; git clone https://bitbucket.org/apdavison/ninemlcodegen.git
+RUN echo "change this text to ensure we skip the cache"; git clone https://github.com/INCF/lib9ML.git
+RUN git clone https://bitbucket.org/apdavison/ninemlcodegen.git
 RUN git clone https://github.com/apdavison/PyNN.git
 RUN $VENV/bin/pip install ./lib9ML
 RUN $VENV/bin/pip install ./ninemlcodegen/nmodl
 RUN cd ./PyNN; git checkout nineml; $VENV/bin/pip install .
 RUN $VENV/bin/pip install sarge
+
+# Install  the 9ML toolkit
+RUN wget http://code.call-cc.org/releases/4.10.0/chicken-4.10.0.tar.gz
+RUN tar zxf chicken-4.10.0.tar.gz; cd chicken-4.10.0; make PLATFORM=linux PREFIX=$HOME/chicken install
+RUN $HOME/chicken/bin/chicken-install 9ML-toolkit
+RUN wget http://downloads.sourceforge.net/project/mlton/mlton/20130715/mlton-20130715-1.amd64-linux.tgz?use_mirror=heanet -O mlton-20130715-1.amd64-linux.tgz
+RUN tar xzf mlton-20130715-1.amd64-linux.tgz; mv usr/lib/mlton $VENV/lib; mv usr/bin/* $VENV/bin
+
 
 RUN mkdir /home/docker/projects
