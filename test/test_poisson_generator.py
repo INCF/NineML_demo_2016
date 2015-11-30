@@ -1,13 +1,16 @@
 """
-This script models a pair of neurons defined by a NineML model.
+This script models a pair of neurons defined by a PyNN model.
 
-Each neuron receives the same synaptic input. For the convenience of
+Each neuron receives the same synaptic input from a Poisson process defined in NineML. For the convenience of
 plotting we overwrite the synaptic current recorded from the second neuron
 with the expected current.
 
 Andrew Davison, May 2015
 """
 
+from __future__ import division
+import matplotlib
+matplotlib.use("Agg")
 import numpy.random
 from nineml import read
 import pyNN.neuron as sim
@@ -15,7 +18,7 @@ from pyNN.neuron.nineml import nineml_cell_type
 from pyNN.utility.plotting import Figure, Panel
 
 
-t_stop = 1000
+t_stop = 100000
 dt = 0.1
 
 sim.setup(timestep=dt)
@@ -43,6 +46,9 @@ sim.run(t_stop)
 
 nrn_data = p.get_data().segments[0]
 stim_data = stim.get_data().segments[0]
+
+print("Expected spike count: {}".format(t_stop*rate/1000))
+print("Actual spike count: {}".format(stim.mean_spike_count()))
 
 Figure(
     Panel(stim_data.spiketrains, markersize=0.5, xlim=(0, t_stop)),

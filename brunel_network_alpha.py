@@ -11,7 +11,7 @@ June 2014
 """
 
 from __future__ import division
-import nineml.user_layer as nineml
+import nineml.user as nineml
 from nineml.units import ms, mV, nA, unitless, Hz, Mohm
 from utility import psp_height
 
@@ -79,9 +79,9 @@ def build_model(order=1000, epsilon=0.1, delay=1.5, J=0.1, theta=20.0,
     all_cells = nineml.Selection("All neurons",
                                  nineml.Concatenate(exc_cells, inh_cells))
 
-    one_to_one = nineml.ConnectionRule("OneToOne", "OneToOne.xml")
-    random_exc = nineml.ConnectionRule("RandomExc", "RandomFanIn.xml", {"number": (Ce, unitless)})
-    random_inh = nineml.ConnectionRule("RandomInh", "RandomFanIn.xml", {"number": (Ci, unitless)})
+    one_to_one = nineml.ConnectionRuleComponent("OneToOne", "OneToOne.xml")
+    random_exc = nineml.ConnectionRuleComponent("RandomExc", "RandomFanIn.xml", {"number": (Ce, unitless)})
+    random_inh = nineml.ConnectionRuleComponent("RandomInh", "RandomFanIn.xml", {"number": (Ci, unitless)})
 
     static_ext = nineml.ConnectionType("ExternalPlasticity", "StaticConnection.xml",
                                        initial_values={"weight": (Jext, nA)})

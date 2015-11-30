@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <NineML xmlns="http://nineml.net/9ML/1.0">
-  <Unit symbol="per_ms" dimension="per_time" power="3"/>
+  <Unit symbol="per_s" dimension="per_time" power="0"/>
   <Dimension name="per_time" t="-1"/>
   <Unit symbol="ms" dimension="time" power="-3"/>
   <ComponentClass name="Poisson">
@@ -8,7 +8,7 @@
     <Parameter dimension="per_time" name="rate"/>
     <Dynamics>
       <StateVariable dimension="time" name="t_next"/>
-      <Constant units="per_ms" name="thousand_per_millisecond">1000.0</Constant>
+      <Constant units="per_s" name="thousand_per_second">1000.0</Constant>
       <Constant units="ms" name="one_ms">1.0</Constant>
       <Regime name="default">
         <OnCondition target_regime="default">
@@ -16,7 +16,7 @@
             <MathInline>t &gt; t_next</MathInline>
           </Trigger>
           <StateAssignment variable="t_next">
-            <MathInline>one_ms*random.exponential(thousand_per_millisecond/rate) + t</MathInline>
+            <MathInline>one_ms*random.exponential(thousand_per_second/rate) + t</MathInline>
           </StateAssignment>
           <OutputEvent port="spikeOutput"/>
         </OnCondition>

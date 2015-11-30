@@ -14,11 +14,13 @@ Andrew Davison, May 2015
 
 from __future__ import division, print_function
 import nest
+import matplotlib
+matplotlib.use("Agg")
 import numpy as np
 from numpy import exp
 from quantities import nA, mV
 from nineml import read
-from nineml.abstraction_layer import DynamicsClass
+from nineml.abstraction import Dynamics
 import pyNN.neuron as sim
 from pyNN.neuron.nineml import nineml_cell_type
 from pyNN.utility.plotting import Figure, Panel
@@ -53,14 +55,16 @@ scale_factor = psp_height(cell_parameters['nrn_tau'],
 w_eff = weight/scale_factor
 delay = 0.5
 
+print("\nEffective weight = {} nA\n".format(w_eff))
+
 
 # PyNN/NineML simulation
 
 sim.setup(timestep=dt)
 
-celltype = DynamicsClass(name='iaf',
-                         subnodes={'nrn': read("../BrunelIaF.xml")['BrunelIaF'],
-                                   'syn': read("../AlphaPSR.xml")['AlphaPSR']})
+celltype = Dynamics(name='iaf',
+                    subnodes={'nrn': read("../BrunelIaF.xml")['BrunelIaF'],
+                              'syn': read("../AlphaPSR.xml")['AlphaPSR']})
 celltype.connect_ports('syn.Isyn', 'nrn.Isyn')
 
 p = sim.Population(2, nineml_cell_type('BrunelIaF', celltype, {'syn': 'syn_q'})(**cell_parameters))
@@ -129,8 +133,8 @@ v_m[1:, 1] = values * mV
 # Plot results
 
 Figure(
-    Panel(synaptic_current, yticks=True, xlim=(0, 120)),
-    Panel(v_m, yticks=True, xlim=(0, 120), xticks=True, xlabel="Time (ms)"),
+    Panel(synaptic_current, yticks=True, xlim=(0, 120), ylabel="Synaptic current (nA)"),
+    Panel(v_m, yticks=True, xlim=(0, 120), xticks=True, xlabel="Time (ms)", ylabel="Membrane potential (mV)"),
 
 ).save("test_neuron_model.png")
 
