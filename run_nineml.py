@@ -1,5 +1,5 @@
 """
-Simulation script for the Brunel (2000) network model as described in NineML.
+Simulation script for the Brunel (2000) network model described in NineML.
 
 This script imports a Python lib9ml network description from
 "brunel_network_alpha.py", exports it as XML, and then
@@ -44,7 +44,6 @@ def run_simulation(parameters, plot_figure=False):
     else:
         all = net.assemblies["All neurons"]
         all.sample(parameters["experiment"]["n_record"]).record("spikes")
-        all.record("spikes")
 
     print("Running simulation")
     t_stop = parameters["experiment"]["duration"]
@@ -63,6 +62,7 @@ def run_simulation(parameters, plot_figure=False):
         else:
             filename = "{}_nineml_{:%Y%m%d%H%M%S}.h5".format(parameters["experiment"]["base_filename"],
                                                              timestamp)
+        print("Writing data to {}".format(filename))
         all.write_data(filename)
 
     sim.end()

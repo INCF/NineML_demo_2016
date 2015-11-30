@@ -51,13 +51,15 @@ with open(config.parameter_file) as fp:
 
 if config.implementation == "nineml":
     from run_nineml import run_simulation
+elif config.implementation == "ninemlpartial":
+    from run_nineml_partial import run_simulation
 elif config.implementation == "nest":
     from run_nest import run_simulation
 elif "pyNN" in config.implementation:
     from run_PyNN import run_simulation
     parameters["simulator"] = config.implementation
 else:
-    raise NotImplementedError()
+    raise NotImplementedError("{} not supported".format(config.implementation))
 
 
 data = run_simulation(parameters, config.plot_figure)
