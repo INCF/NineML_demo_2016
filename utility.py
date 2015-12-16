@@ -1,5 +1,5 @@
 """
-
+Utility functions for the Brunel network simulations.
 
 """
 
@@ -28,6 +28,9 @@ def psp_height(tau_m, R_m, tau_syn):
 
 
 def segment_from_recording_device(devices, variables_to_include, id_lists, t_stop, name="segment00"):
+    """
+    Extract data from a NEST recording device and return it as a Neo Segment object.    
+    """
 
     def get_data(device, variable, id_list):
         events = nest.GetStatus(device, 'events')[0]

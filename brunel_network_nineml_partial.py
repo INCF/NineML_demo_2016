@@ -90,8 +90,8 @@ def build_network(sim, order=1000, epsilon=0.1, delay=1.5, J=0.1, theta=20.0,
     }
 
     celltype = Dynamics(name='iaf',
-                        subnodes={'nrn': read("BrunelIaF.xml")['BrunelIaF'],
-                                  'syn': read("AlphaPSR.xml")['AlphaPSR']})
+                        subnodes={'nrn': read("sources/BrunelIaF.xml")['BrunelIaF'],
+                                  'syn': read("sources/AlphaPSR.xml")['AlphaPSR']})
     celltype.connect_ports('syn.Isyn', 'nrn.Isyn')
 
     exc = sim.Population(NE, nineml_cell_type('BrunelIaF', celltype, {'syn': 'syn_q'})(**neuron_params))
@@ -99,7 +99,7 @@ def build_network(sim, order=1000, epsilon=0.1, delay=1.5, J=0.1, theta=20.0,
     all = exc + inh
     all.initialize(v=0.0)
 
-    stim = sim.Population(NE + NI, nineml_cell_type('Poisson', read("Poisson.xml")['Poisson'], {})(rate=p_rate))
+    stim = sim.Population(NE + NI, nineml_cell_type('Poisson', read("sources/Poisson.xml")['Poisson'], {})(rate=p_rate))
 
     print("Connecting network")
 

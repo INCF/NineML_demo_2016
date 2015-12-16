@@ -1,19 +1,76 @@
-# encoding: utf-8
 """
 Network model from
 
     Brunel, N. (2000) J. Comput. Neurosci. 8: 183-208
 
-expressed in NineML using the Python API
+expressed in NineML using the Python API and then
+simulated using the pyNN.nineml module with the NEURON
+backend.
 
-Author: Andrew P. Davison, UNIC, CNRS
-June 2014
 """
 
 from __future__ import division
+from datetime import datetime
+import pyNN.neuron as sim
+from pyNN.nineml.read import Network
+from pyNN.utility import SimulationProgressBar
 import nineml.user as nineml
 from nineml.units import ms, mV, nA, unitless, Hz, Mohm
 from utility import psp_height
+
+
+def run_simulation(parameters, plot_figure=False):
+    """
+
+    """
+    timestamp = datetime.now()
+    model = build_model(**parameters["network"])
+    if "full_filename" in parameters["experiment"]:
+        xml_file = parameters["experiment"]["full_filename"].replace(".h5", ".xml")
+    else:
+        xml_file = "{}.xml".format(parameters["experiment"]["base_filename"])
+    model.write(xml_file)
+
+    sim.setup()
+
+    print("Building network")
+    net = Network(sim, xml_file)
+
+    if plot_figure:
+        stim = net.populations["Ext"]
+        stim[:100].record('spikes')
+        exc = net.populations["Exc"]
+        exc.sample(50).record("spikes")
+        exc.sample(3).record(["nrn_V", "syn_A"])
+        inh = net.populations["Inh"]
+        inh.sample(50).record("spikes")
+        inh.sample(3).record(["nrn_V", "syn_A"])
+    else:
+        all = net.assemblies["All neurons"]
+        all.sample(parameters["experiment"]["n_record"]).record("spikes")
+
+    print("Running simulation")
+    t_stop = parameters["experiment"]["duration"]
+    pb = SimulationProgressBar(t_stop/80, t_stop)
+    sim.run(t_stop, callbacks=[pb])
+
+    print("Handling data")
+    data = {}
+    if plot_figure:
+        data["stim"] = stim.get_data().segments[0]
+        data["exc"] = exc.get_data().segments[0]
+        data["inh"] = inh.get_data().segments[0]
+    else:
+        if "full_filename" in parameters["experiment"]:
+            filename = parameters["experiment"]["full_filename"]
+        else:
+            filename = "{}_nineml_{:%Y%m%d%H%M%S}.h5".format(parameters["experiment"]["base_filename"],
+                                                             timestamp)
+        print("Writing data to {}".format(filename))
+        all.write_data(filename)
+
+    sim.end()
+    return data
 
 
 def build_model(order=1000, epsilon=0.1, delay=1.5, J=0.1, theta=20.0,
@@ -59,17 +116,17 @@ def build_model(order=1000, epsilon=0.1, delay=1.5, J=0.1, theta=20.0,
                              "t_rpend": (0.0, ms)}
     synapse_initial_values = {"A": (0.0, nA), "B": (0.0, nA)}
 
-    celltype = nineml.SpikingNodeType("nrn", "BrunelIaF.xml", neuron_parameters,
+    celltype = nineml.SpikingNodeType("nrn", "sources/BrunelIaF.xml", neuron_parameters,
                                       initial_values=neuron_initial_values)
 
     #tpoisson_init = nineml.RandomDistribution("exponential(beta)",
     #                                          "catalog/randomdistributions/exponential_distribution.xml",
     #                                          {"beta": (1000.0/input_rate, "dimensionless")})
     tpoisson_init = 5.0
-    ext_stim = nineml.SpikingNodeType("stim", "Poisson.xml",
+    ext_stim = nineml.SpikingNodeType("stim", "sources/Poisson.xml",
                                       nineml.PropertySet(rate=(input_rate, Hz)),
                                       initial_values={"t_next": (tpoisson_init, ms)})
-    psr = nineml.SynapseType("syn", "AlphaPSR.xml", psr_parameters,
+    psr = nineml.SynapseType("syn", "sources/AlphaPSR.xml", psr_parameters,
                              initial_values=synapse_initial_values)
 
     exc_cells = nineml.Population("Exc", Ne, celltype, positions=None)
@@ -79,15 +136,15 @@ def build_model(order=1000, epsilon=0.1, delay=1.5, J=0.1, theta=20.0,
     all_cells = nineml.Selection("All neurons",
                                  nineml.Concatenate(exc_cells, inh_cells))
 
-    one_to_one = nineml.ConnectionRuleComponent("OneToOne", "OneToOne.xml")
-    random_exc = nineml.ConnectionRuleComponent("RandomExc", "RandomFanIn.xml", {"number": (Ce, unitless)})
-    random_inh = nineml.ConnectionRuleComponent("RandomInh", "RandomFanIn.xml", {"number": (Ci, unitless)})
+    one_to_one = nineml.ConnectionRuleComponent("OneToOne", "sources/OneToOne.xml")
+    random_exc = nineml.ConnectionRuleComponent("RandomExc", "sources/RandomFanIn.xml", {"number": (Ce, unitless)})
+    random_inh = nineml.ConnectionRuleComponent("RandomInh", "sources/RandomFanIn.xml", {"number": (Ci, unitless)})
 
-    static_ext = nineml.ConnectionType("ExternalPlasticity", "StaticConnection.xml",
+    static_ext = nineml.ConnectionType("ExternalPlasticity", "sources/StaticConnection.xml",
                                        initial_values={"weight": (Jext, nA)})
-    static_exc = nineml.ConnectionType("ExcitatoryPlasticity", "StaticConnection.xml",
+    static_exc = nineml.ConnectionType("ExcitatoryPlasticity", "sources/StaticConnection.xml",
                                        initial_values={"weight": (Je, nA)})
-    static_inh = nineml.ConnectionType("InhibitoryPlasticity", "StaticConnection.xml",
+    static_inh = nineml.ConnectionType("InhibitoryPlasticity", "sources/StaticConnection.xml",
                                        initial_values={"weight": (Ji, nA)})
 
     input_prj = nineml.Projection("External", external, all_cells,
@@ -117,8 +174,3 @@ def build_model(order=1000, epsilon=0.1, delay=1.5, J=0.1, theta=20.0,
     network.add(input_prj, exc_prj, inh_prj)
 
     return network
-
-
-if __name__ == "__main__":
-    model = build_model(g=5, eta=2)  # asynchronous irregular
-    model.write(__file__.replace(".py", "_AI.xml"))

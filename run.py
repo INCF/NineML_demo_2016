@@ -50,13 +50,13 @@ with open(config.parameter_file) as fp:
 
 
 if config.implementation == "nineml":
-    from run_nineml import run_simulation
+    from brunel_network_nineml import run_simulation
 elif config.implementation == "ninemlpartial":
-    from run_nineml_partial import run_simulation
+    from brunel_network_nineml_partial import run_simulation
 elif config.implementation == "nest":
-    from run_nest import run_simulation
+    from brunel_network_nest import run_simulation
 elif "pyNN" in config.implementation:
-    from run_PyNN import run_simulation
+    from brunel_network_PyNN import run_simulation
     parameters["simulator"] = config.implementation
 else:
     raise NotImplementedError("{} not supported".format(config.implementation))
