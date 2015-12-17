@@ -97,7 +97,7 @@ def build_model(order=1000, epsilon=0.1, delay=1.5, J=0.1, theta=20.0,
     Ji = -g * Je       # inhibitory weights
     Jext = Je          # external weights
     #nu_thresh = theta / (Je * Ce * tau * exp(1.0) * tau_syn)  # threshold rate
-    nu_thresh = theta / (J * Ce * tau)
+    nu_thresh = theta / (Je * Ce * R * tau_syn)
     nu_ext = eta * nu_thresh      # external rate per synapse
     input_rate = 1000.0 * nu_ext * Cext   # mean input spiking rate
 

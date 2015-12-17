@@ -75,8 +75,7 @@ def build_network(sim, order=1000, epsilon=0.1, delay=1.5, J=0.1, theta=20.0,
     J_ex  = J / J_unit
     J_in  = -g * J_ex
 
-    nu_th = theta / (J * CE * tau)
-    #nu_th  = (theta * CMem) / (J_ex*CE*exp(1)*tauMem*tauSyn)
+    nu_th  = theta / (J_ex * CE * R * tau_syn * exp(1))
     nu_ex = eta * nu_th
     p_rate = 1000.0 * nu_ex * CE
 
