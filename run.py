@@ -51,13 +51,17 @@ with open(config.parameter_file) as fp:
 
 if config.implementation == "nineml":
     from brunel_network_nineml import run_simulation
+    vm_var = "nrn_v"
 elif config.implementation == "ninemlpartial":
     from brunel_network_nineml_partial import run_simulation
+    vm_var = "nrn_v"
 elif config.implementation == "nest":
     from brunel_network_nest import run_simulation
+    vm_var = "V_m"
 elif "pyNN" in config.implementation:
     from brunel_network_PyNN import run_simulation
     parameters["simulator"] = config.implementation
+    vm_var = "v"
 else:
     raise NotImplementedError("{} not supported".format(config.implementation))
 
@@ -73,11 +77,11 @@ if config.plot_figure:
     plot_limits = parameters["experiment"]["plot_limits"]
     Figure(
         Panel(data["stim"].spiketrains, markersize=0.2, xlim=plot_limits),
-        Panel(data["exc"].analogsignalarrays[0], yticks=True, xlim=plot_limits),
+        Panel(data["exc"].filter(name=vm_var)[0], yticks=True, xlim=plot_limits),
         #Panel(data["exc"].analogsignalarrays[1], yticks=True, xlim=plot_limits),
         Panel(data["exc"].spiketrains[:100], markersize=0.5, xlim=plot_limits),
         Panel(instantaneous_firing_rate(data["exc"], *plot_limits), yticks=True),
-        Panel(data["inh"].analogsignalarrays[0], yticks=True, xlim=plot_limits),
+        Panel(data["inh"].filter(name=vm_var)[0], yticks=True, xlim=plot_limits),
         #Panel(data["inh"].analogsignalarrays[1], yticks=True, xlim=plot_limits),
         Panel(data["inh"].spiketrains[:100], markersize=0.5, xlim=plot_limits),
         Panel(instantaneous_firing_rate(data["inh"], *plot_limits),
