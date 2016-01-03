@@ -29,7 +29,7 @@ p = sim.Population(1, sim.IF_curr_alpha(**cell_parameters))
 p.initialize(v=0.0)
 
 rate = 20
-stim = sim.Population(1, nineml_cell_type('Poisson', read("../Poisson.xml")['Poisson'], {})(rate=rate))
+stim = sim.Population(1, nineml_cell_type('Poisson', read("../sources/Poisson.xml")['Poisson'], {})(rate=rate))
 stim.initialize(t_next=numpy.random.exponential(1000/rate))
 
 weight = 0.1

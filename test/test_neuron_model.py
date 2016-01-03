@@ -44,14 +44,14 @@ def psp_height(tau_m, R_m, tau_syn):
 
 t_stop = 120
 dt = 0.01
-cell_parameters = {'nrn_R': 1.5, 'nrn_Vreset': 10.0, 'nrn_tau': 20.0,
-                   'nrn_tau_rp': 2.0, 'nrn_theta': 20.0, 'syn_tau_syn': 0.5}
+cell_parameters = {'nrn_R': 1.5, 'nrn_v_reset': 10.0, 'nrn_tau': 20.0,
+                   'nrn_refractory_period': 2.0, 'nrn_v_threshold': 20.0, 'syn_tau': 0.5}
 spike_times = np.arange(45, 155, 10.0)
 spike_times[0] = 5
 weight = 0.1  # EPSP height from a single spike received at resting potential
 scale_factor = psp_height(cell_parameters['nrn_tau'],
                           cell_parameters["nrn_R"],
-                          cell_parameters["syn_tau_syn"])
+                          cell_parameters["syn_tau"])
 w_eff = weight/scale_factor
 delay = 0.5
 
@@ -63,11 +63,11 @@ print("\nEffective weight = {} nA\n".format(w_eff))
 sim.setup(timestep=dt)
 
 celltype = Dynamics(name='iaf',
-                    subnodes={'nrn': read("../BrunelIaF.xml")['BrunelIaF'],
-                              'syn': read("../AlphaPSR.xml")['AlphaPSR']})
-celltype.connect_ports('syn.Isyn', 'nrn.Isyn')
+                    subnodes={'nrn': read("../sources/BrunelIaF.xml")['BrunelIaF'],
+                              'syn': read("../sources/AlphaPSR.xml")['AlphaPSR']})
+celltype.connect_ports('syn.i_synaptic', 'nrn.i_synaptic')
 
-p = sim.Population(2, nineml_cell_type('BrunelIaF', celltype, {'syn': 'syn_q'})(**cell_parameters))
+p = sim.Population(2, nineml_cell_type('BrunelIaF', celltype, {'syn': 'syn_weight'})(**cell_parameters))
 stim = sim.Population(1, sim.SpikeSourceArray(spike_times=spike_times))
 
 prj = sim.Projection(stim, p,
@@ -75,23 +75,23 @@ prj = sim.Projection(stim, p,
                      sim.StaticSynapse(weight=w_eff, delay=delay),
                      receptor_type='syn')
 
-p.record(['nrn_V', 'syn_A', 'syn_B'])
+p.record(['nrn_v', 'syn_a', 'syn_b'])
 
 sim.run(t_stop)
 
 nrn_data = p.get_data().segments[0]
 
 expected = np.zeros((1 + int(round(t_stop/dt)),))
-tau_syn = cell_parameters["syn_tau_syn"]
+tau_syn = cell_parameters["syn_tau"]
 tp = np.arange(0, t_stop - spike_times[0] - delay, dt)/tau_syn
 expected[1 + int(round((spike_times[0] + delay)/dt)):] = w_eff * tp * np.exp(-tp)
 
-synaptic_current = nrn_data.filter(name='syn_A')[0]
+synaptic_current = nrn_data.filter(name='syn_a')[0]
 # for convenience of plotting, we overwrite the synaptic current recorded from the second neuron
 # with the expected time course for the first EPSC
 synaptic_current[:, 1] = expected * nA
 
-v_m = nrn_data.filter(name='nrn_V')[0]
+v_m = nrn_data.filter(name='nrn_v')[0]
 
 
 # NEST simulation
@@ -102,13 +102,13 @@ nest.SetKernelStatus({"resolution": dt, "print_time": True, 'local_num_threads':
 
 neuron_params = {"C_m":        1000*cell_parameters["nrn_tau"]/cell_parameters["nrn_R"],
                  "tau_m":      cell_parameters["nrn_tau"],
-                 "tau_syn_ex": cell_parameters["syn_tau_syn"],
-                 "tau_syn_in": cell_parameters["syn_tau_syn"],
-                 "t_ref":      cell_parameters["nrn_tau_rp"],
+                 "tau_syn_ex": cell_parameters["syn_tau"],
+                 "tau_syn_in": cell_parameters["syn_tau"],
+                 "t_ref":      cell_parameters["nrn_refractory_period"],
                  "E_L":        0.0,
-                 "V_reset":    cell_parameters["nrn_Vreset"],
+                 "V_reset":    cell_parameters["nrn_v_reset"],
                  "V_m":        0.0,
-                 "V_th":       cell_parameters["nrn_theta"]}
+                 "V_th":       cell_parameters["nrn_v_threshold"]}
 
 nest.SetDefaults("iaf_psc_alpha", neuron_params)
 p2 = nest.Create("iaf_psc_alpha", 1)

@@ -9,6 +9,7 @@ from numpy import exp, random
 import pyNN.neuron as sim
 from pyNN.utility import SimulationProgressBar
 from pyNN.neuron.nineml import nineml_cell_type
+from pyNN.random import RandomDistribution, NumpyRNG
 from nineml.abstraction import Dynamics
 from nineml import read
 from utility import psp_height
@@ -21,17 +22,18 @@ def run_simulation(parameters, plot_figure=False):
     timestamp = datetime.now()
     dt = 0.1
 
+    seed = parameters["experiment"]["seed"]
     sim.setup(timestep=dt)
 
     print("Building network")
-    stim, exc, inh = build_network(sim, **parameters["network"])
+    stim, exc, inh = build_network(sim, seed=seed, **parameters["network"])
 
     if plot_figure:
         stim[:100].record('spikes')
         exc.sample(50).record("spikes")
-        exc.sample(3).record("nrn_V")
+        exc.sample(3).record("nrn_v")
         inh.sample(50).record("spikes")
-        inh.sample(3).record("nrn_V")
+        inh.sample(3).record("nrn_v")
     else:
         all = exc + inh
         all.sample(parameters["experiment"]["n_record"]).record("spikes")
@@ -62,7 +64,7 @@ def run_simulation(parameters, plot_figure=False):
 
 def build_network(sim, order=1000, epsilon=0.1, delay=1.5, J=0.1, theta=20.0,
                   tau=20.0, tau_syn=0.1, tau_refrac=2.0, v_reset=10.0,
-                  R=1.5, g=5, eta=2):
+                  R=1.5, g=5, eta=2, seed=None):
 
     NE = 4 * order
     NI = 1 * order
@@ -79,24 +81,27 @@ def build_network(sim, order=1000, epsilon=0.1, delay=1.5, J=0.1, theta=20.0,
     nu_ex = eta * nu_th
     p_rate = 1000.0 * nu_ex * CE
 
+    assert seed is not None
+    rng = NumpyRNG(seed)
+
     neuron_params = {
         "nrn_tau": tau,
-        "nrn_theta": theta,
-        "nrn_tau_rp": tau_refrac,
-        "nrn_Vreset": v_reset,
+        "nrn_v_threshold": theta,
+        "nrn_refractory_period": tau_refrac,
+        "nrn_v_reset": v_reset,
         "nrn_R": R,
-        "syn_tau_syn": tau_syn
+        "syn_tau": tau_syn
     }
 
     celltype = Dynamics(name='iaf',
                         subnodes={'nrn': read("sources/BrunelIaF.xml")['BrunelIaF'],
                                   'syn': read("sources/AlphaPSR.xml")['AlphaPSR']})
-    celltype.connect_ports('syn.Isyn', 'nrn.Isyn')
+    celltype.connect_ports('syn.i_synaptic', 'nrn.i_synaptic')
 
-    exc = sim.Population(NE, nineml_cell_type('BrunelIaF', celltype, {'syn': 'syn_q'})(**neuron_params))
-    inh = sim.Population(NI, nineml_cell_type('BrunelIaF', celltype, {'syn': 'syn_q'})(**neuron_params))
+    exc = sim.Population(NE, nineml_cell_type('BrunelIaF', celltype, {'syn': 'syn_weight'})(**neuron_params))
+    inh = sim.Population(NI, nineml_cell_type('BrunelIaF', celltype, {'syn': 'syn_weight'})(**neuron_params))
     all = exc + inh
-    all.initialize(v=0.0)
+    all.initialize(v=RandomDistribution('uniform', (0.0, theta), rng=rng))
 
     stim = sim.Population(NE + NI, nineml_cell_type('Poisson', read("sources/Poisson.xml")['Poisson'], {})(rate=p_rate))
 
@@ -108,7 +113,5 @@ def build_network(sim, order=1000, epsilon=0.1, delay=1.5, J=0.1, theta=20.0,
     input_connections = sim.Projection(stim, all, sim.OneToOneConnector(), exc_synapse, receptor_type="syn")
     exc_connections = sim.Projection(exc, all, sim.FixedNumberPreConnector(n=CE), exc_synapse, receptor_type="syn")  # check is Pre not Post
     inh_connections = sim.Projection(inh, all, sim.FixedNumberPreConnector(n=CI), inh_synapse, receptor_type="syn")
-
-    import pdb; pdb.set_trace()
 
     return stim, exc, inh

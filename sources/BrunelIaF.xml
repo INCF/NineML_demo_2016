@@ -2,45 +2,45 @@
 <NineML xmlns="http://nineml.net/9ML/1.0">
   <Dimension i="1" name="current"/>
   <ComponentClass name="BrunelIaF">
-    <AnalogSendPort dimension="time" name="t_rpend"/>
-    <AnalogSendPort dimension="voltage" name="V"/>
-    <AnalogReducePort operator="+" dimension="current" name="Isyn"/>
-    <EventSendPort name="spikeOutput"/>
-    <Parameter dimension="voltage" name="Vreset"/>
+    <AnalogSendPort dimension="time" name="refractory_end"/>
+    <AnalogSendPort dimension="voltage" name="v"/>
+    <AnalogReducePort operator="+" dimension="current" name="i_synaptic"/>
+    <EventSendPort name="spike_output"/>
+    <Parameter dimension="time" name="refractory_period"/>
     <Parameter dimension="time" name="tau"/>
     <Parameter dimension="resistance" name="R"/>
-    <Parameter dimension="time" name="tau_rp"/>
-    <Parameter dimension="voltage" name="theta"/>
+    <Parameter dimension="voltage" name="v_threshold"/>
+    <Parameter dimension="voltage" name="v_reset"/>
     <Dynamics>
-      <StateVariable dimension="time" name="t_rpend"/>
-      <StateVariable dimension="voltage" name="V"/>
-      <Regime name="refractoryRegime">
-        <OnCondition target_regime="subthresholdRegime">
+      <Regime name="refractory">
+        <OnCondition target_regime="subthreshold">
           <Trigger>
-            <MathInline>t &gt; t_rpend</MathInline>
+            <MathInline>t &gt; refractory_end</MathInline>
           </Trigger>
         </OnCondition>
       </Regime>
-      <Regime name="subthresholdRegime">
-        <TimeDerivative variable="V">
-          <MathInline>(Isyn*R - V)/tau</MathInline>
+      <Regime name="subthreshold">
+        <TimeDerivative variable="v">
+          <MathInline>(R*i_synaptic - v)/tau</MathInline>
         </TimeDerivative>
-        <OnCondition target_regime="refractoryRegime">
+        <OnCondition target_regime="refractory">
           <Trigger>
-            <MathInline>V &gt; theta</MathInline>
+            <MathInline>v &gt; v_threshold</MathInline>
           </Trigger>
-          <OutputEvent port="spikeOutput"/>
-          <StateAssignment variable="V">
-            <MathInline>Vreset</MathInline>
+          <OutputEvent port="spike_output"/>
+          <StateAssignment variable="refractory_end">
+            <MathInline>refractory_period + t</MathInline>
           </StateAssignment>
-          <StateAssignment variable="t_rpend">
-            <MathInline>t + tau_rp</MathInline>
+          <StateAssignment variable="v">
+            <MathInline>v_reset</MathInline>
           </StateAssignment>
         </OnCondition>
       </Regime>
+      <StateVariable dimension="time" name="refractory_end"/>
+      <StateVariable dimension="voltage" name="v"/>
     </Dynamics>
   </ComponentClass>
-  <Dimension i="-1" l="2" m="1" t="-3" name="voltage"/>
   <Dimension i="-2" l="2" m="1" t="-3" name="resistance"/>
+  <Dimension i="-1" l="2" m="1" t="-3" name="voltage"/>
   <Dimension name="time" t="1"/>
 </NineML>

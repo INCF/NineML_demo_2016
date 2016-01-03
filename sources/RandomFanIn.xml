@@ -3,6 +3,6 @@
   <Dimension name="dimensionless"/>
   <ComponentClass name="RandomFanIn">
     <Parameter name="number" dimension="dimensionless"/>
-    <ConnectionRule standardLibrary="RandomFanIn" />
+    <ConnectionRule standard_library="RandomFanIn" />
   </ComponentClass>
 </NineML>

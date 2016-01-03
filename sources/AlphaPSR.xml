@@ -3,30 +3,30 @@
   <Dimension i="1" name="current"/>
   <Dimension name="time" t="1"/>
   <ComponentClass name="AlphaPSR">
-    <AnalogSendPort dimension="current" name="A"/>
-    <AnalogSendPort dimension="current" name="Isyn"/>
-    <AnalogSendPort dimension="current" name="B"/>
-    <AnalogReceivePort dimension="current" name="q"/>
+    <AnalogSendPort dimension="current" name="a"/>
+    <AnalogSendPort dimension="current" name="i_synaptic"/>
+    <AnalogSendPort dimension="current" name="b"/>
+    <AnalogReceivePort dimension="current" name="weight"/>
     <EventReceivePort name="spike"/>
-    <Parameter dimension="time" name="tau_syn"/>
+    <Parameter dimension="time" name="tau"/>
     <Dynamics>
       <Regime name="default">
-        <TimeDerivative variable="A">
-          <MathInline>(-A + B)/tau_syn</MathInline>
-        </TimeDerivative>
-        <TimeDerivative variable="B">
-          <MathInline>-B/tau_syn</MathInline>
-        </TimeDerivative>
         <OnEvent target_regime="default" port="spike">
-          <StateAssignment variable="B">
-            <MathInline>B + q</MathInline>
+          <StateAssignment variable="b">
+            <MathInline>b + weight</MathInline>
           </StateAssignment>
         </OnEvent>
+        <TimeDerivative variable="a">
+          <MathInline>(-a + b)/tau</MathInline>
+        </TimeDerivative>
+        <TimeDerivative variable="b">
+          <MathInline>-b/tau</MathInline>
+        </TimeDerivative>
       </Regime>
-      <StateVariable dimension="current" name="A"/>
-      <StateVariable dimension="current" name="B"/>
-      <Alias name="Isyn">
-        <MathInline>A</MathInline>
+      <StateVariable dimension="current" name="a"/>
+      <StateVariable dimension="current" name="b"/>
+      <Alias name="i_synaptic">
+        <MathInline>a</MathInline>
       </Alias>
     </Dynamics>
   </ComponentClass>

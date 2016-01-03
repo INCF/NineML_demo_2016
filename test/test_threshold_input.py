@@ -43,22 +43,21 @@ def psp_height(tau_m, R_m, tau_syn):
 
 t_stop = 500
 dt = 0.01
-cell_parameters = {'nrn_R': 1.5, 'nrn_Vreset': 10.0, 'nrn_tau': 20.0,
-                   'nrn_tau_rp': 2.0, 'nrn_theta': 20.0, 'syn_tau_syn': 0.1}
+cell_parameters = {'nrn_R': 1.5, 'nrn_v_reset': 10.0, 'nrn_tau': 20.0,
+                   'nrn_refractory_period': 2.0, 'nrn_v_threshold': 20.0, 'syn_tau': 0.1}
 weight = 0.1  # EPSP height from a single spike received at resting potential
 scale_factor = psp_height(cell_parameters['nrn_tau'],
                           cell_parameters["nrn_R"],
-                          cell_parameters["syn_tau_syn"])
+                          cell_parameters["syn_tau"])
 w_eff = weight/scale_factor
 delay = 0.5
 cm = cell_parameters['nrn_tau']/cell_parameters['nrn_R']
-#nu_thresh = 1000.0 * cell_parameters['nrn_theta'] / (weight * cell_parameters['nrn_tau'])
-nu_thresh = 1000.0 * cell_parameters['nrn_theta'] * cm / (
-               w_eff * cell_parameters['nrn_tau'] * cell_parameters['syn_tau_syn'])
+nu_thresh = 1000.0 * cell_parameters['nrn_v_threshold'] * cm / (
+               w_eff * cell_parameters['nrn_tau'] * cell_parameters['syn_tau'])
 
 print("\ntau = {}, R = {}, tau_syn = {}".format(cell_parameters['nrn_tau'],
                                                 cell_parameters["nrn_R"],
-                                                cell_parameters["syn_tau_syn"]))
+                                                cell_parameters["syn_tau"]))
 print("\nEffective weight = {} nA".format(w_eff))
 print("Threshold rate = {} Hz\n".format(nu_thresh))
 
@@ -67,16 +66,16 @@ print("Threshold rate = {} Hz\n".format(nu_thresh))
 sim.setup(timestep=dt)
 
 celltype = Dynamics(name='iaf',
-                    subnodes={'nrn': read("../BrunelIaF.xml")['BrunelIaF'],
-                              'syn': read("../AlphaPSR.xml")['AlphaPSR']})
-celltype.connect_ports('syn.Isyn', 'nrn.Isyn')
-p1 = sim.Population(4, nineml_cell_type('BrunelIaF', celltype, {'syn': 'syn_q'})(**cell_parameters))
+                    subnodes={'nrn': read("../sources/BrunelIaF.xml")['BrunelIaF'],
+                              'syn': read("../sources/AlphaPSR.xml")['AlphaPSR']})
+celltype.connect_ports('syn.i_synaptic', 'nrn.i_synaptic')
+p1 = sim.Population(4, nineml_cell_type('BrunelIaF', celltype, {'syn': 'syn_weight'})(**cell_parameters))
 cell_parameters_no_spikes = copy(cell_parameters)
-cell_parameters_no_spikes["nrn_theta"] = 1000.0
-p2 = sim.Population(4, nineml_cell_type('BrunelIaF', celltype, {'syn': 'syn_q'})(**cell_parameters_no_spikes))
+cell_parameters_no_spikes["nrn_v_threshold"] = 1000.0
+p2 = sim.Population(4, nineml_cell_type('BrunelIaF', celltype, {'syn': 'syn_weight'})(**cell_parameters_no_spikes))
 
 stim = sim.Population(4,
-                      nineml_cell_type('Poisson', read("../Poisson.xml")['Poisson'], {})(
+                      nineml_cell_type('Poisson', read("../sources/Poisson.xml")['Poisson'], {})(
                           rate=[0.5*nu_thresh, nu_thresh, 2*nu_thresh, 0.0]))
 
 prj1 = sim.Projection(stim, p1,
@@ -88,13 +87,13 @@ prj2 = sim.Projection(stim, p2,
                       sim.StaticSynapse(weight=w_eff, delay=delay),
                       receptor_type='syn')
 
-p1.record(['nrn_V', 'syn_A', 'syn_B'])
-p2.record(['nrn_V', 'syn_A', 'syn_B'])
+p1.record(['nrn_v', 'syn_a', 'syn_b'])
+p2.record(['nrn_v', 'syn_a', 'syn_b'])
 
 sim.run(t_stop)
 
-v_m1 = p1.get_data().segments[0].filter(name='nrn_V')[0]
-v_m2 = p2.get_data().segments[0].filter(name='nrn_V')[0]
+v_m1 = p1.get_data().segments[0].filter(name='nrn_v')[0]
+v_m2 = p2.get_data().segments[0].filter(name='nrn_v')[0]
 
 
 # NEST simulation
@@ -105,13 +104,13 @@ nest.SetKernelStatus({"resolution": dt, "print_time": True, 'local_num_threads':
 
 neuron_params = {"C_m":        1000*cell_parameters["nrn_tau"]/cell_parameters["nrn_R"],
                  "tau_m":      cell_parameters["nrn_tau"],
-                 "tau_syn_ex": cell_parameters["syn_tau_syn"],
-                 "tau_syn_in": cell_parameters["syn_tau_syn"],
-                 "t_ref":      cell_parameters["nrn_tau_rp"],
+                 "tau_syn_ex": cell_parameters["syn_tau"],
+                 "tau_syn_in": cell_parameters["syn_tau"],
+                 "t_ref":      cell_parameters["nrn_refractory_period"],
                  "E_L":        0.0,
-                 "V_reset":    cell_parameters["nrn_Vreset"],
+                 "V_reset":    cell_parameters["nrn_v_reset"],
                  "V_m":        0.0,
-                 "V_th":       cell_parameters_no_spikes["nrn_theta"]}
+                 "V_th":       cell_parameters_no_spikes["nrn_v_threshold"]}
 
 nest.SetDefaults("iaf_psc_alpha", neuron_params)
 p2 = nest.Create("iaf_psc_alpha", 1)

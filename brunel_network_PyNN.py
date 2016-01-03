@@ -6,7 +6,7 @@ from __future__ import division, print_function
 from datetime import datetime
 from numpy import exp, random
 from pyNN.utility import SimulationProgressBar
-from pyNN.random import NumpyRNG
+from pyNN.random import RandomDistribution, NumpyRNG
 from utility import psp_height
 
 
@@ -79,6 +79,9 @@ def build_network(sim, order=1000, epsilon=0.1, delay=1.5, J=0.1, theta=20.0,
     nu_ex = eta * nu_th
     p_rate = 1000.0 * nu_ex * CE
 
+    assert seed is not None
+    rng = NumpyRNG(seed)
+
     neuron_params = {"cm":        CMem,
                      "tau_m":      tau,
                      "tau_syn_E":  tau_syn,
@@ -91,7 +94,7 @@ def build_network(sim, order=1000, epsilon=0.1, delay=1.5, J=0.1, theta=20.0,
     exc = sim.Population(NE, sim.IF_curr_alpha(**neuron_params))
     inh = sim.Population(NI, sim.IF_curr_alpha(**neuron_params))
     all = exc + inh
-    all.initialize(v=0.0)
+    all.initialize(v=RandomDistribution('uniform', (0.0, theta), rng=rng))
 
     stim = sim.Population(NE + NI, sim.SpikeSourcePoisson(rate=p_rate))
 
@@ -100,8 +103,6 @@ def build_network(sim, order=1000, epsilon=0.1, delay=1.5, J=0.1, theta=20.0,
     exc_synapse = sim.StaticSynapse(weight=J_ex, delay=delay)
     inh_synapse = sim.StaticSynapse(weight=J_in, delay=delay)
 
-    assert seed is not None
-    rng = NumpyRNG(seed)
     input_connections = sim.Projection(stim, all, sim.OneToOneConnector(), exc_synapse)
     exc_connections = sim.Projection(exc, all, sim.FixedNumberPreConnector(n=CE, rng=rng), exc_synapse)  # check is Pre not Post
     inh_connections = sim.Projection(inh, all, sim.FixedNumberPreConnector(n=CI, rng=rng), inh_synapse)

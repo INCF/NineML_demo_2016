@@ -2,43 +2,42 @@
 
 """
 
-import nineml.abstraction_layer as al
+import nineml.abstraction as al
 from nineml.units import voltage, time, resistance, current
 
-model = al.DynamicsClass(
+model = al.Dynamics(
     name="BrunelIaF",
     regimes=[
         al.Regime(
-            name="subthresholdRegime",
-            time_derivatives=["dV/dt = (-V + R*Isyn)/tau"],
-            transitions=al.On("V > theta",
-                              do=["t_rpend = t + tau_rp",
-                                  "V = Vreset",
-                                  al.OutputEvent('spikeOutput')],
-                              to="refractoryRegime"),
+            name="subthreshold",
+            time_derivatives=["dv/dt = (-v + R*i_synaptic)/tau"],
+            transitions=al.On("v > v_threshold",
+                              do=["refractory_end = t + refractory_period",
+                                  "v = v_reset",
+                                  al.OutputEvent('spike_output')],
+                              to="refractory"),
         ),
         al.Regime(
-            name="refractoryRegime",
-            transitions=[al.On("t > t_rpend",
-                               #do=[al.OutputEvent('refractoryEnd')],
-                               to="subthresholdRegime")],
+            name="refractory",
+            transitions=[al.On("t > refractory_end",
+                               to="subthreshold")],
         )
     ],
     state_variables=[
-        al.StateVariable('V', dimension=voltage),
-        al.StateVariable('t_rpend', dimension=time)],
+        al.StateVariable('v', dimension=voltage),
+        al.StateVariable('refractory_end', dimension=time)],
     analog_ports=[
-        al.AnalogSendPort("V", dimension=voltage),
-        al.AnalogSendPort("t_rpend", dimension=time),
-        al.AnalogReducePort("Isyn", operator="+", dimension=current)],
+        al.AnalogSendPort("v", dimension=voltage),
+        al.AnalogSendPort("refractory_end", dimension=time),
+        al.AnalogReducePort("i_synaptic", operator="+", dimension=current)],
     event_ports=[
-        al.EventSendPort('spikeOutput'),
+        al.EventSendPort('spike_output'),
         ],
     parameters=[
         al.Parameter('tau', time),
-        al.Parameter('theta', voltage),
-        al.Parameter('tau_rp', time),
-        al.Parameter('Vreset', voltage),
+        al.Parameter('v_threshold', voltage),
+        al.Parameter('refractory_period', time),
+        al.Parameter('v_reset', voltage),
         al.Parameter('R', resistance)]
 )
 

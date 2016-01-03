@@ -4,15 +4,15 @@
   <Dimension i="1" name="current"/>
   <Dimension i="1" name="current_per_time" t="-1"/>
   <ComponentClass name="StaticConnection">
-    <AnalogSendPort dimension="current" name="weight"/>
+    <AnalogSendPort dimension="current" name="fixed_weight"/>
     <Dynamics>
       <Constant units="A_per_s" name="zero">0.0</Constant>
-      <StateVariable dimension="current" name="weight"/>
       <Regime name="default">
-        <TimeDerivative variable="weight">
+        <TimeDerivative variable="fixed_weight">
           <MathInline>zero</MathInline>
         </TimeDerivative>
       </Regime>
+      <StateVariable dimension="current" name="fixed_weight"/>
     </Dynamics>
   </ComponentClass>
 </NineML>

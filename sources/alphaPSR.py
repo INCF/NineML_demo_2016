@@ -1,28 +1,28 @@
-import nineml.abstraction_layer as al
+import nineml.abstraction as al
 from nineml.units import current, time
 
-model = al.DynamicsClass(
+model = al.Dynamics(
     name="AlphaPSR",
-    aliases=["Isyn := A"],
+    aliases=["i_synaptic := a"],
     regimes=[
         al.Regime(
             name="default",
             time_derivatives=[
-                "dA/dt = (B - A)/tau_syn",  # TGC 4/15 changed from "B - A/tau_syn" as dimensions didn't add up @IgnorePep8
-                "dB/dt = -B/tau_syn"],
+                "da/dt = (b - a)/tau",
+                "db/dt = -b/tau"],
             transitions=al.On('spike',
-                              do=["B = B + q"]),  # would be nice to allow constant quantities, so we could make q dimensionless @IgnorePep8
+                              do=["b = b + weight"]),
         )
     ],
     state_variables=[
-        al.StateVariable('A', dimension=current),
-        al.StateVariable('B', dimension=current),
+        al.StateVariable('a', dimension=current),
+        al.StateVariable('b', dimension=current),
     ],
-    analog_ports=[al.AnalogSendPort("Isyn", dimension=current),
-                  al.AnalogSendPort("A", dimension=current),
-                  al.AnalogSendPort("B", dimension=current),
-                  al.AnalogReceivePort("q", dimension=current)],
-    parameters=[al.Parameter('tau_syn', dimension=time)]
+    analog_ports=[al.AnalogSendPort("i_synaptic", dimension=current),
+                  al.AnalogSendPort("a", dimension=current),
+                  al.AnalogSendPort("b", dimension=current),
+                  al.AnalogReceivePort("weight", dimension=current)],
+    parameters=[al.Parameter('tau', dimension=time)]
 )
 
 
