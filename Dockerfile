@@ -4,6 +4,13 @@
 # To build:
 #     docker build -t brunel9ml .
 #
+# To run:
+#
+#    mkdir myresults
+#    docker run -v myresults:/home/docker/projects/brunel2000_nineml/results -t -i brunel9ml /bin/bash
+#
+# (the -v flag specifies a local directory that will be shared with the Docker container,
+#  so you can easily access simulation results on the host computer).
 
 
 FROM neuralensemble/simulation
@@ -29,7 +36,7 @@ RUN $VENV2/bin/pip install elephant
 # Install NineML libraries
 
 WORKDIR $HOME/packages
-RUN echo "change this text to ensure we skip the cache"; git clone https://github.com/INCF/lib9ML.git
+RUN echo "change this line to ensure we skip the cache"; git clone https://github.com/apdavison/lib9ML.git
 RUN git clone https://bitbucket.org/apdavison/ninemlcodegen.git
 RUN git clone https://github.com/apdavison/PyNN.git
 RUN $VENV/bin/pip install ./lib9ML
@@ -44,5 +51,13 @@ RUN $HOME/chicken/bin/chicken-install 9ML-toolkit
 RUN wget http://downloads.sourceforge.net/project/mlton/mlton/20130715/mlton-20130715-1.amd64-linux.tgz?use_mirror=heanet -O mlton-20130715-1.amd64-linux.tgz
 RUN tar xzf mlton-20130715-1.amd64-linux.tgz; mv usr/lib/mlton $VENV/lib; mv usr/bin/* $VENV/bin
 
+# Install the Brunel (2000) project directory
 
-RUN mkdir /home/docker/projects
+RUN mkdir $HOME/projects
+WORKDIR $HOME/projects
+RUN git clone https://apdavison@bitbucket.org/apdavison/brunel2000_nineml.git
+WORKDIR $HOME/projects/brunel2000_nineml
+
+# Welcome message
+
+RUN echo 'echo "Docker container for simulating the Brunel (2000) model using NEURON and NineML. See README.rst for instructions."' >> $HOME/.bashrc

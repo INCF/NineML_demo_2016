@@ -2,10 +2,10 @@
 
 """
 
-import nineml.abstraction_layer as al
+import nineml.abstraction as al
 from nineml.units import per_time, time, ms, per_ms
 
-model = al.DynamicsClass(
+model = al.Dynamics(
     name="Poisson",
     regimes=[
         al.Regime(
