@@ -1,6 +1,6 @@
-Results
-results
-nineml_mechanisms
-order1000
-x86_64
+python/brunel2000/Results
+python/brunel2000/results
+python/brunel2000/nineml_mechanisms
+python/brunel2000/order1000
+python/brunel2000/x86_64
 *.tar.gz

@@ -2,11 +2,11 @@ import nineml.abstraction as al
 from nineml.units import current, time
 
 model = al.Dynamics(
-    name="AlphaPSR",
+    name="Alpha",
     aliases=["i_synaptic := a"],
     regimes=[
         al.Regime(
-            name="default",
+            name="sole",
             time_derivatives=[
                 "da/dt = (b - a)/tau",
                 "db/dt = -b/tau"],

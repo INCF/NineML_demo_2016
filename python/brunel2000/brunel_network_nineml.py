@@ -30,6 +30,7 @@ def run_simulation(parameters, plot_figure=False):
     else:
         xml_file = "{}.xml".format(parameters["experiment"]["base_filename"])
     model.write(xml_file)
+    print("Exported model to file {}".format(xml_file))
 
     sim.setup()
 
@@ -139,12 +140,15 @@ def build_model(order=1000, epsilon=0.1, delay=1.5, J=0.1, theta=20.0,
     random_exc = nineml.ConnectionRuleComponent("RandomExc", "sources/RandomFanIn.xml", {"number": (Ce, unitless)})
     random_inh = nineml.ConnectionRuleComponent("RandomInh", "sources/RandomFanIn.xml", {"number": (Ci, unitless)})
 
-    static_ext = nineml.ConnectionType("ExternalPlasticity", "sources/StaticConnection.xml",
-                                       initial_values={"weight": (Jext, nA)})
-    static_exc = nineml.ConnectionType("ExcitatoryPlasticity", "sources/StaticConnection.xml",
-                                       initial_values={"weight": (Je, nA)})
-    static_inh = nineml.ConnectionType("InhibitoryPlasticity", "sources/StaticConnection.xml",
-                                       initial_values={"weight": (Ji, nA)})
+    static_ext = nineml.ConnectionType("ExternalPlasticity", "sources/Static.xml",
+                                       nineml.PropertySet(weight=(Jext, nA)))
+                                       #initial_values={"weight": (Jext, nA)})
+    static_exc = nineml.ConnectionType("ExcitatoryPlasticity", "sources/Static.xml",
+                                       nineml.PropertySet(weight=(Je, nA)))
+                                       #initial_values={"weight": (Je, nA)})
+    static_inh = nineml.ConnectionType("InhibitoryPlasticity", "sources/Static.xml",
+                                       nineml.PropertySet(weight=(Ji, nA)))
+                                       #initial_values={"weight": (Ji, nA)})
 
     input_prj = nineml.Projection("External", external, all_cells,
                                   connectivity=one_to_one,
