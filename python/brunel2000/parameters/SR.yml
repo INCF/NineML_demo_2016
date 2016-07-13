@@ -15,7 +15,7 @@ network:
   R: 1.5           # (MΩ) membrane resistance
 experiment:
   duration: 600   # (ms) simulation duration
-  base_filename: 'results/brunel_network_alpha_SR'
+  base_filename: '../../results/brunel_network_alpha_SR'
   n_record: 500    # number of neurons to record
   plot_limits: [500, 600]
   seed: 4569435692

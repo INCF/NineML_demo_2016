@@ -18,6 +18,8 @@ import nineml.user as nineml
 from nineml.units import ms, mV, nA, unitless, Hz, Mohm
 from utility import psp_height
 
+CATALOG_URL = "/home/docker/projects/nineml_demo_2016/catalog/xml/"
+
 
 def run_simulation(parameters, plot_figure=False):
     """
@@ -109,24 +111,27 @@ def build_model(order=1000, epsilon=0.1, delay=1.5, J=0.1, theta=20.0,
     psr_parameters = nineml.PropertySet(tau=(tau_syn, ms))
     v_init = nineml.RandomDistributionComponent(
         "uniform_rest_to_threshold",
-        "sources/UniformDistribution.xml",
+        CATALOG_URL + "randomdistribution/Uniform.xml#UniformDistribution",
         {'minimum': (0.0, unitless),
-         'maximum': (theta, unitless)})
+         'maximum': (theta, unitless)},
+    )
     neuron_initial_values = {"v": (v_init, mV),
                              "refractory_end": (0.0, ms)}
     synapse_initial_values = {"a": (0.0, nA), "b": (0.0, nA)}
 
-    celltype = nineml.SpikingNodeType("nrn", "sources/BrunelIaF.xml", neuron_parameters,
+    celltype = nineml.SpikingNodeType("nrn", CATALOG_URL + "neuron/LeakyIntegrateAndFire.xml",
+                                      neuron_parameters,
                                       initial_values=neuron_initial_values)
     tpoisson_init = nineml.RandomDistributionComponent(
         "exponential_first_spike_time",
-        "sources/ExponentialDistribution.xml",
+        CATALOG_URL + "randomdistribution/Exponential.xml#ExponentialDistribution",
         {"rate": (input_rate, unitless)})
 
-    ext_stim = nineml.SpikingNodeType("stim", "sources/Poisson.xml",
+    ext_stim = nineml.SpikingNodeType("stim", CATALOG_URL + "input/Poisson.xml",
                                       nineml.PropertySet(rate=(input_rate, Hz)),
                                       initial_values={"t_next": (tpoisson_init, ms)})
-    psr = nineml.SynapseType("syn", "sources/AlphaPSR.xml", psr_parameters,
+    psr = nineml.SynapseType("syn", CATALOG_URL + "postsynapticresponse/Alpha.xml",
+                             psr_parameters,
                              initial_values=synapse_initial_values)
 
     exc_cells = nineml.Population("Exc", Ne, celltype, positions=None)
@@ -136,17 +141,25 @@ def build_model(order=1000, epsilon=0.1, delay=1.5, J=0.1, theta=20.0,
     all_cells = nineml.Selection("All",
                                  nineml.Concatenate(exc_cells, inh_cells))
 
-    one_to_one = nineml.ConnectionRuleComponent("OneToOne", "sources/OneToOne.xml")
-    random_exc = nineml.ConnectionRuleComponent("RandomExc", "sources/RandomFanIn.xml", {"number": (Ce, unitless)})
-    random_inh = nineml.ConnectionRuleComponent("RandomInh", "sources/RandomFanIn.xml", {"number": (Ci, unitless)})
+    one_to_one = nineml.ConnectionRuleComponent("OneToOne",
+                                                CATALOG_URL + "connectionrule/OneToOne.xml")
+    random_exc = nineml.ConnectionRuleComponent("RandomExc",
+                                                CATALOG_URL + "connectionrule/RandomFanIn.xml",
+                                                {"number": (Ce, unitless)})
+    random_inh = nineml.ConnectionRuleComponent("RandomInh",
+                                                CATALOG_URL + "connectionrule/RandomFanIn.xml",
+                                                {"number": (Ci, unitless)})
 
-    static_ext = nineml.ConnectionType("ExternalPlasticity", "sources/Static.xml",
+    static_ext = nineml.ConnectionType("ExternalPlasticity",
+                                       CATALOG_URL + "plasticity/Static.xml",
                                        nineml.PropertySet(weight=(Jext, nA)))
                                        #initial_values={"weight": (Jext, nA)})
-    static_exc = nineml.ConnectionType("ExcitatoryPlasticity", "sources/Static.xml",
+    static_exc = nineml.ConnectionType("ExcitatoryPlasticity",
+                                       CATALOG_URL + "plasticity/Static.xml",
                                        nineml.PropertySet(weight=(Je, nA)))
                                        #initial_values={"weight": (Je, nA)})
-    static_inh = nineml.ConnectionType("InhibitoryPlasticity", "sources/Static.xml",
+    static_inh = nineml.ConnectionType("InhibitoryPlasticity",
+                                       CATALOG_URL + "plasticity/Static.xml",
                                        nineml.PropertySet(weight=(Ji, nA)))
                                        #initial_values={"weight": (Ji, nA)})
 
