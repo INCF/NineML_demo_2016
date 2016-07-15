@@ -5,14 +5,14 @@ NineML demonstrations
 TODO
 
 A Docker image with everything already installed is available from Docker Hub:
-https://hub.docker.com/r/apdavison/ninemldemo/
+https://hub.docker.com/r/apdavison/nineml_demo_2016/
 
 Once you have Docker installed::
 
     docker pull apdavison/ninemldemo
     mkdir myresults
     cd myresults
-    docker run -v `pwd`:/home/docker/projects/nineml_demo_2016/results -t -i apdavison/ninemldemo /bin/bash
+    docker run -v `pwd`:/home/docker/projects/nineml_demo_2016/results -t -i apdavison/nineml_demo_2016 /bin/bash
 
 This will start a Docker container running the bash shell, in which you can run simulations
 as described below. The directory `myresults` on your host machine will be shared with the
