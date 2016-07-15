@@ -28,9 +28,17 @@ Running simulations with the 9ML-toolkit
 
     cd ~/projects/nineml_demo_2016/9ML-toolkit/examples/Brunel2000
     9ML-network -m crk3 brunel_network_alpha_AI.xml  # creates Sim_brunel_network_alpha_AI
-    Sim_brunel_network_alpha_AI -d 1200.0 --timestep=0.01 -s "All neurons"
+    ./Sim_brunel_network_alpha_AI -d 1200.0 --timestep=0.01 -s "All neurons"
 
 Data are recorded to `brunel_network_alpha_AI.dat`. Each line consists of the time followed by the indices of the neurons which spiked during that time step.
+
+Or, based on the XML files from the NineML Catalog::
+
+    cd ~/projects/nineml_demo_2016/catalog/xml/network/Brunel2000/
+    9ML-network -m crk3 AI.xml
+    cd ~/projects/nineml_demo_2016/results
+    ~/projects/nineml_demo_2016/catalog/xml/network/Brunel2000/Sim_AI -d 1200.0 --timestep=0.01 -s "All"
+
 
 Running simulations with Python
 ===============================

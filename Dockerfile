@@ -9,7 +9,7 @@
 # To run:
 #
 #    mkdir myresults
-#    docker run -v `pwd`/myresults:/home/docker/projects/ninemldemo/results -t -i ninemldemo /bin/bash
+#    docker run -v `pwd`/myresults:/home/docker/projects/nineml_demo_2016/results -t -i ninemldemo /bin/bash
 #
 # (the -v flag specifies a local directory that will be shared with the Docker container,
 #  so you can easily access simulation results on the host computer).
@@ -52,6 +52,7 @@ RUN wget http://code.call-cc.org/releases/4.11.0/chicken-4.11.0.tar.gz
 RUN tar zxf chicken-4.11.0.tar.gz; cd chicken-4.11.0; make PLATFORM=linux PREFIX=$HOME/chicken install
 RUN $HOME/chicken/bin/chicken-install 9ML-toolkit
 RUN ln -s $HOME/chicken/bin/9ML-network $VENV/bin
+RUN ln -s $HOME/chicken/bin/csi $VENV/bin
 
 RUN wget http://downloads.sourceforge.net/project/mlton/mlton/20130715/mlton-20130715-1.amd64-linux.tgz?use_mirror=heanet -O mlton-20130715-1.amd64-linux.tgz
 RUN tar xzf mlton-20130715-1.amd64-linux.tgz; mv usr/lib/mlton $VENV/lib; mv usr/bin/* $VENV/bin
@@ -62,15 +63,12 @@ RUN chmod u+x $VENV/bin/mlton
 
 RUN mkdir $HOME/projects
 WORKDIR $HOME/projects
-##RUN echo "change this text to ensure we skip the cache"; git clone https://apdavison@bitbucket.org/apdavison/nineml_demo_2016.git
-##WORKDIR $HOME/projects/nineml_demo_2016
+RUN echo "change this text to ensure we skip the cache"; git clone https://apdavison@bitbucket.org/apdavison/nineml_demo_2016.git
 
 # Clone the 9ML-toolkit and copy the examples directories
-##RUN git clone https://github.com/iraikov/9ML-toolkit.git
+WORKDIR $HOME/projects/nineml_demo_2016
+RUN git clone https://github.com/iraikov/9ML-toolkit.git
+RUN git clone https://github.com/INCF/NineMLCatalog.git catalog
 
 # Welcome message
-
 RUN echo 'echo "Docker container for running NineML demonstrations. See README.rst for instructions."' >> $HOME/.bashrc
-
-
-# TODO: link the results directories to the shared "myresults" directory. Symbolic links? or modify scripts?
