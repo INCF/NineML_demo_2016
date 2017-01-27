@@ -16,10 +16,12 @@ def run_simulation(parameters, plot_figure=False):
 
     """
     timestamp = datetime.now()
-    dt = 0.1
+    dt = parameters["experiment"]["timestep"]
     nest.ResetKernel()
+    seed = parameters["experiment"]["seed"]
     nest.SetKernelStatus({"resolution": dt, "print_time": True, 'local_num_threads': 1,
-                          "rng_seeds": [parameters["experiment"]["seed"]]})
+                          "rng_seeds": [seed],
+                          "grng_seed": seed + 1})
 
     stim, exc, inh = build_network(**parameters["network"])
 

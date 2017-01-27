@@ -11,20 +11,21 @@ backend.
 
 from __future__ import division
 from datetime import datetime
-import pyNN.neuron as sim
 from pyNN.nineml.read import Network
 from pyNN.utility import SimulationProgressBar
 import nineml.user as nineml
 from nineml.units import ms, mV, nA, unitless, Hz, Mohm
 from utility import psp_height
 
-CATALOG_URL = "/home/docker/projects/nineml_demo_2016/catalog/xml/"
-
+#CATALOG_URL = "/home/docker/projects/nineml_demo_2016/catalog/xml/"
+CATALOG_URL = "/home/andrew/dev/NineML_demo_2016/catalog/xml/"
 
 def run_simulation(parameters, plot_figure=False):
     """
 
     """
+    import pyNN.neuron as sim
+
     timestamp = datetime.now()
     model = build_model(**parameters["network"])
     if "full_filename" in parameters["experiment"]:
