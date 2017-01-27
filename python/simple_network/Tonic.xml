@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<NineML xmlns="http://nineml.net/9ML/1.0">
+  <ComponentClass name="Tonic">
+    <EventSendPort name="spikeOutput"/>
+    <Parameter dimension="time" name="interval"/>
+    <Dynamics>
+      <Regime name="default">
+        <OnCondition target_regime="default">
+          <Trigger>
+            <MathInline>t &gt; t_next</MathInline>
+          </Trigger>
+          <OutputEvent port="spikeOutput"/>
+          <StateAssignment variable="t_next">
+            <MathInline>interval + t</MathInline>
+          </StateAssignment>
+        </OnCondition>
+      </Regime>
+      <StateVariable dimension="time" name="t_next"/>
+    </Dynamics>
+  </ComponentClass>
+  <Dimension name="time" t="1"/>
+</NineML>

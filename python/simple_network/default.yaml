@@ -1,0 +1,19 @@
+# Default parameters for simple network model
+
+network:
+  N: 1                # size of the network
+  delay: 1.5          # (ms) global delay for all neurons in the group
+  weight: 50.0        # (nA) EPSC size
+  theta: 10.0         # (mV) firing threshold
+  tau: 20.0           # (ms) membrane time constant
+  tau_syn: 1.0        # (ms) synapse time constant
+  tau_refrac: 5.0     # (ms) refractory period
+  v_reset: 0.0        # (mV) reset potential
+  R: 1.5              # (MΩ) membrane resistance
+  interval: 5.0       # (ms) interval between input spikes
+experiment:
+  duration: 100       # (ms) simulation duration
+  timestep: 0.001      # (ms) solver time step
+  base_filename: 'results/simple_network_default_dt0p001'
+  plot_limits: [30, 40]
+  seed: 456943569
