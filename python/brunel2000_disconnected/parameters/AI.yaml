@@ -1,7 +1,7 @@
 # Default parameters for the Brunel (2000) network model
 
 network:
-  order: 2500      # scales the size of the network
+  order: 250      # scales the size of the network
   epsilon: 0.1     # connection probability
   delay: 1.5       # (ms) global delay for all neurons in the group
   J: 0.1           # (mV) EPSP size
@@ -16,7 +16,7 @@ network:
 experiment:
   duration: 1200   # (ms) simulation duration
   timestep: 0.01   # (ms) solver time step
-  base_filename: 'results/brunel_network_alpha_AI'
+  base_filename: 'results/brunel_network_alpha_AI_noconnect'
   n_record: 500    # number of neurons to record
-  plot_limits: [1000, 1200]
+  plot_limits: [0, 1200]
   seed: 456943569

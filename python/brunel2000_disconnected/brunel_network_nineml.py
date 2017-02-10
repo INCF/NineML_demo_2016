@@ -51,8 +51,9 @@ def run_simulation(parameters, plot_figure=False):
         inh.sample(50).record("spikes")
         inh.sample(1).record(["nrn_v", "syn_a"])
     else:
-        all = net.assemblies["All"]
-        all.sample(parameters["experiment"]["n_record"]).record("spikes")
+        ##all = net.assemblies["All"]
+        ##all.sample(parameters["experiment"]["n_record"]).record("spikes")
+        net.populations["Ext"].sample(parameters["experiment"]["n_record"]).record("spikes")  ## debugging
 
     print("Running simulation")
     t_stop = parameters["experiment"]["duration"]
@@ -72,7 +73,8 @@ def run_simulation(parameters, plot_figure=False):
             filename = "{}_nineml_{:%Y%m%d%H%M%S}.h5".format(parameters["experiment"]["base_filename"],
                                                              timestamp)
         print("Writing data to {}".format(filename))
-        all.write_data(filename)
+        ##all.write_data(filename)  ## debugging
+        net.populations["Ext"].write_data(filename)
 
     sim.end()
     return data
@@ -124,10 +126,11 @@ def build_model(order=1000, epsilon=0.1, delay=1.5, J=0.1, theta=20.0,
     celltype = nineml.SpikingNodeType("nrn", CATALOG_URL + "neuron/LeakyIntegrateAndFire.xml",
                                       neuron_parameters,
                                       initial_values=neuron_initial_values)
-    tpoisson_init = nineml.RandomDistributionComponent(
-        "exponential_first_spike_time",
-        CATALOG_URL + "randomdistribution/Exponential.xml#ExponentialDistribution",
-        {"rate": (input_rate, unitless)})
+    # tpoisson_init = nineml.RandomDistributionComponent(
+    #     "exponential_first_spike_time",
+    #     CATALOG_URL + "randomdistribution/Exponential.xml#ExponentialDistribution",
+    #     {"rate": (input_rate, unitless)})
+    tpoisson_init = 0.1
 
     ext_stim = nineml.SpikingNodeType("stim", CATALOG_URL + "input/Poisson.xml",
                                       nineml.PropertySet(rate=(input_rate, Hz)),
@@ -172,23 +175,23 @@ def build_model(order=1000, epsilon=0.1, delay=1.5, J=0.1, theta=20.0,
                                   port_connections=[nineml.PortConnection("plasticity", "response", "fixed_weight", "weight"),
                                                     nineml.PortConnection("response", "destination", "i_synaptic", "i_synaptic")],
                                   delay=(delay, ms))
-    exc_prj = nineml.Projection("Excitation", exc_cells, all_cells,
-                                connectivity=random_exc,
-                                response=psr,
-                                plasticity=static_exc,
-                                port_connections=[nineml.PortConnection("plasticity", "response", "fixed_weight", "weight"),
-                                                  nineml.PortConnection("response", "destination", "i_synaptic", "i_synaptic")],
-                                delay=(delay, ms))
-    inh_prj = nineml.Projection("Inhibition", inh_cells, all_cells,
-                                connectivity=random_inh,
-                                response=psr,
-                                plasticity=static_inh,
-                                port_connections=[nineml.PortConnection("plasticity", "response", "fixed_weight", "weight"),
-                                                  nineml.PortConnection("response", "destination", "i_synaptic", "i_synaptic")],
-                                delay=(delay, ms))
+    # exc_prj = nineml.Projection("Excitation", exc_cells, all_cells,
+    #                             connectivity=random_exc,
+    #                             response=psr,
+    #                             plasticity=static_exc,
+    #                             port_connections=[nineml.PortConnection("plasticity", "response", "fixed_weight", "weight"),
+    #                                               nineml.PortConnection("response", "destination", "i_synaptic", "i_synaptic")],
+    #                             delay=(delay, ms))
+    # inh_prj = nineml.Projection("Inhibition", inh_cells, all_cells,
+    #                             connectivity=random_inh,
+    #                             response=psr,
+    #                             plasticity=static_inh,
+    #                             port_connections=[nineml.PortConnection("plasticity", "response", "fixed_weight", "weight"),
+    #                                               nineml.PortConnection("response", "destination", "i_synaptic", "i_synaptic")],
+    #                             delay=(delay, ms))
 
     network = nineml.Network("BrunelCaseC")
     network.add(exc_cells, inh_cells, external, all_cells)
-    network.add(input_prj, exc_prj, inh_prj)
+    network.add(input_prj) #, exc_prj, inh_prj)
 
     return network

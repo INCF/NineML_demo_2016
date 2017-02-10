@@ -81,7 +81,8 @@ class NineMLToolkitIO(BaseIO):
                             for id in entries[1:]:
                                 spike_times[id].append(time)
                 t_stop = float(entries[0])
-            min_id = min(map(int, spike_times))
+            if spike_times:
+                min_id = min(map(int, spike_times))
             segment.spiketrains = [SpikeTrain(times, t_stop=t_stop, units="ms",
                                               id=int(id), source_index=int(id) - min_id)
                                    for id, times in spike_times.items()]

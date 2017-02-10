@@ -42,7 +42,8 @@ def run_simulation(parameters, plot_figure=False):
     stim.record('spikes')
     exc = net.populations["Exc"]
     exc.record("spikes")
-    exc[:3].record(["nrn_v", "syn_a"])
+    n_record = int(parameters["experiment"]["n_record"])
+    exc[:n_record].record(["nrn_v", "syn_a"])
 
     print("Running simulation")
     t_stop = parameters["experiment"]["duration"]
@@ -70,7 +71,7 @@ def run_simulation(parameters, plot_figure=False):
 
 def build_model(N=100, delay=1.5, weight=0.1, theta=20.0,
                 tau=20.0, tau_syn=0.1, tau_refrac=2.0, v_reset=10.0,
-                R=1.5, interval=5.0):
+                R=1.5, poisson_rate=200.0):
     """
     docstring missing
     """
@@ -89,9 +90,9 @@ def build_model(N=100, delay=1.5, weight=0.1, theta=20.0,
     celltype = nineml.SpikingNodeType("nrn", CATALOG_URL + "neuron/LeakyIntegrateAndFire.xml",
                                       neuron_parameters,
                                       initial_values=neuron_initial_values)
-    ext_stim = nineml.SpikingNodeType("stim", join(dirname(__file__), "Tonic.xml"),
-                                      nineml.PropertySet(interval=(interval, ms)),
-                                      initial_values={"t_next": (10.0, ms)})
+    ext_stim = nineml.SpikingNodeType("stim", CATALOG_URL + "input/Poisson.xml",
+                                      nineml.PropertySet(rate=(poisson_rate, Hz)),
+                                      initial_values={"t_next": (0.0, ms)})
     psr = nineml.SynapseType("syn", CATALOG_URL + "postsynapticresponse/Alpha.xml",
                              psr_parameters,
                              initial_values=synapse_initial_values)

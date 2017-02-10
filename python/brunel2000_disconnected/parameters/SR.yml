@@ -5,7 +5,7 @@ network:
   epsilon: 0.1     # connection probability
   delay: 1.5       # (ms) global delay for all neurons in the group
   J: 0.1           # (mV) EPSP size
-  g: 5             # relative strength of inhibitory synapses
+  g: 3             # relative strength of inhibitory synapses
   eta: 2           # ratio of external to threshold firing rates
   theta: 20.0      # (mV) firing threshold
   tau: 20.0        # (ms) membrane time constant
@@ -14,9 +14,8 @@ network:
   v_reset: 10.0    # (mV) reset potential
   R: 1.5           # (MΩ) membrane resistance
 experiment:
-  duration: 1200   # (ms) simulation duration
-  timestep: 0.01   # (ms) solver time step
-  base_filename: 'results/brunel_network_alpha_AI'
+  duration: 600   # (ms) simulation duration
+  base_filename: '../../results/brunel_network_alpha_SR'
   n_record: 500    # number of neurons to record
-  plot_limits: [1000, 1200]
-  seed: 456943569
+  plot_limits: [500, 600]
+  seed: 4569435692
